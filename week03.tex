@@ -1,0 +1,405 @@
+\documentclass{prosper}%[pdf,azure,slideColor,colorBG]{prosper}
+\hypersetup{pdfpagemode=FullScreen}
+
+\usepackage{graphicx}
+\usepackage{graphics}
+\usepackage{rotating}
+\usepackage{verbatim}
+
+\usepackage{epsfig}
+
+\newcommand{\quiz}[1]{{\hfill \tiny{$_{ #1}$}}}
+
+\newcommand{\enfa}{{$\epsilon$-NFA}}
+\newcommand{\e} {{\mbox{$\epsilon$}}}
+\newcommand{\autom}[1]{$#1 = (Q, \delta, \Sigma, q_0, F)$}
+\newcommand{\sg}{{\mbox{$\Sigma$}}}
+
+\begin{document}
+\begin{comment}
+\begin{slide}{Exercise}
+Matching REs and the shortest strings in the languages they specify. Assume $\Sigma=\{a,b\}$
+\quiz{w3.4}
+\end{slide}
+\end{comment}
+
+\begin{slide}{Equivalence of DFAs and REs}
+\begin{itemize}
+%\begin{center}
+%\includegraphics[scale=.6]{figures/re3.eps}
+%\end{center}
+\item {\blue Theorem:} A language is regular if and only if some regular expression describes it. 
+\item We prove this theorem by showing that FAs are equivalent to REs, i.e., by proving the following lemmas:
+\begin{itemize}
+\item For every DFA $A$ we can {\blue construct  a RE} $R$, such that $L(R) = L(A)$. 
+\item For every RE $R$ we can {\blue construct \enfa}\ $A$, such that $L(A) = L(R)$.
+\end{itemize} 
+\end{itemize}
+\end{slide}
+
+\begin{slide}{From DFA to RE}
+\begin{center}
+For every DFA $A=(Q, \Sigma, \delta, q_0, F)$ there is an RE $R$, s.t. $L(R)=L(A)$.
+\end{center}
+{\bf Proof idea:} we propose a method for constructing a RE that describes strings recognized by A.
+\vspace{1cm}\\
+Recall from an earlier example how we constructed an RE from the \enfa\ below.
+\begin{center}
+\includegraphics[scale=.6]{figures/nfa10.eps}
+\end{center}
+\end{slide}
+
+\begin{slide}{From DFA to RE}
+A  method for building an RE that describes strings recognized by a DFA:
+\begin{itemize}
+\item We build REs that describe strings that label paths in the DFA's state transition diagram.
+%\item The paths, however, are allowed to go through a limited subset of states.
+\item Induction on the {\blue number of states a path can \underline{go through}}
+\begin{itemize}
+\item {\bf basis}:  the paths cannot go through any state.
+\item {\bf Induction}: Paths can go through progressively larger subsets of states.
+\end{itemize}
+\item By applying this induction, we end up generating REs that represent {\bf all possible paths}.
+\item The final RE is the {\blue union} of all REs labelling paths that connect {\bf initial and final states}.
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}{From DFA to RE}
+For every DFA $A=(Q, \Sigma, \delta, q_0, F)$ there is a RE $R$, s.t. $L(R)=L(A)$.
+
+{\bf Proof:} Le the states of $A$ be $\{1,2,3,\cdots,n\}$, with 1 being the start state.
+\begin{itemize}
+\item Let $R_{ij}^{(k)}$ be a regular expression describing the set of labels of all paths in $A$ from state $i$ to state $j$ that have no intermediate node whose number is greater than $k$.
+\item Notice that $k$ is a constraint on which states a path can go through.
+
+\begin{comment}
+\begin{center}
+\includegraphics[scale=.3]{figures/re4-new.eps}
+\end{center}
+\end{comment}
+\end{itemize}
+\end{slide}
+
+\begin{slide}{Inductively defining $R_{ij}^{(k)}$}
+$R_{ij}^{(k)}$ will be defined inductively. Note that
+\begin{center}
+\(
+L\left(\biguplus_{\red j\in F}R_{\red 1j}^{({\red n})}\right) = L(A)
+\), where $A=(Q, \Sigma, \delta, q_0, F)$
+\end{center}
+% \begin{center}
+%\includegraphics[scale=.4]{figures/re5.eps}
+%\end{center}
+{\bf Basis:} $k=0$, i.e., since states are labeled from 1, then the path has no intermediate states.
+\begin{minipage}{7cm}
+\begin{itemize}
+\item Case 1: $i\neq j$
+\[
+R^{(0)}_{ij}=\biguplus_{\{a\in\Sigma : \delta(i,a)=j\}}a
+\]
+\item Case 2: $i= j$
+\[
+R^{(0)}_{ij}=\left(\biguplus_{\{a\in\Sigma : \delta(i,a)=j\}}a\right)+\epsilon
+\]
+\end{itemize}
+\end{minipage}
+\end{slide}
+
+\begin{slide}{Example: Obtaining $R^0_{ij}$}
+Obtain $R^{(0)}_{ij}$ for the DFA below:
+\vspace{1cm}
+\begin{center}
+\includegraphics[scale=.5]{figures/DFA2REex1.eps}
+\end{center}
+\end{slide}
+
+\begin{slide}{Inductively defining $R_{ij}^{(k)}$ (cnt.)}
+{\bf Induction:} $k>0$. Remember: the path goes through no states greater than $k$. Two cases to consider:{\blue
+\[
+\begin{array}{rc}
+&R^{(k)}_{ij}\\
+&=\\
+\mbox{\black Path does not go through state $k$:} & R^{(k-1)}_{ij}\\
+&+\\
+\mbox{\black Path goes through $k$ one or more times:} & R^{(k-1)}_{ik}(R^{(k-1)}_{kk})^*R^{(k-1)}_{kj}
+\end{array}
+\]}
+\begin{center}
+\includegraphics[scale=.3]{figures/re8new.eps}
+\end{center}
+\end{slide}
+
+\begin{slide}{Example}
+Let's find a regular expression $R$ for the following DFA $A$, where $L(A)=\{x0y:x\in\{1\}^*\mbox{ and }y \in \{0,1\}^*\}$
+\begin{center}
+\includegraphics[scale=.4]{figures/re9.eps}
+\end{center}
+\end{slide}
+
+\begin{slide}{Example (cnt.)}
+We will need the following simplification rules:
+\begin{itemize}
+\item $(\e+R)^*=R^*$
+\item $(\e+R)R^*=R^*(\e+R)=R^*$
+\item $R+RS^*=RS^*$, analogously $R+S^*R=S^*R$
+\item $\emptyset R=R\emptyset=\emptyset \mbox{ (Annihilation)}$
+\item $\emptyset +R=R+\emptyset=R \mbox{ (Identity)}$
+\end{itemize}
+%\begin{center}
+%\includegraphics[scale=.4]{figures/re10.eps}
+%\end{center}
+\end{slide}
+
+\begin{slide}{Example (cnt.)}
+\begin{center}
+\includegraphics[scale=.3]{figures/re11.eps}
+\end{center}
+\end{slide}
+
+\begin{slide}{Example (cnt.)}
+\begin{center}
+\includegraphics[scale=.3]{figures/re12.eps}
+\end{center}
+\end{slide}
+
+\begin{slide}{Example (cnt.)}
+\begin{center}
+\includegraphics[scale=.2]{figures/re13new.eps}
+\end{center}
+Since \(L\left(\biguplus_{\red j\in F}R_{\red 1j}^{({\red n})}\right)
+\) denotes the language of the DFA $A$, then the final regex for $A$ is
+\(
+R^{(2)}_{12}=1^*0(0+1)^*
+\)
+\end{slide}
+
+
+
+\begin{slide}{From DFA to RE: Observations}
+This is definitely an expensive construction method.
+\begin{itemize}
+%\item There are far $n^3$ expressions $R_{ij}^{(k)}$.
+\item Each inductive step grows the expression 4-fold, which implies $R_{ij}^{(n)}$'s size can be on the order of $4^n$ symbols.
+%\item For all $\{i,j\} \subseteq \{1,\cdots,n\}, R^{(k)}_{ij}\mbox{ uses }R^{(k-1)}_{kk}$ so we have to write $n^2$ times the RE $R^{(k-1)}_{kk}$.
+\item There is a more efficient approach: the state elimination technique.
+\end{itemize}
+\end{slide}
+
+\begin{slide}{The state elimination technique}
+Intuition: suppose we have a DFA and want to eliminate a state $s$ in between two states $p$ and $q$:
+\begin{itemize}
+\item when we eliminate $s$, all paths that went through $s$ no longer exist in the automaton.
+\item If the language is not to change, then we must include on an edge that goes from $p$ to $q$ the labels of all paths that went from $p$ to $q$, through $s$.
+\item since there could be an infinite number of such strings, we can use an RE as a label for the path.
+\end{itemize}
+\end{slide}
+
+\begin{slide}{The state elimination technique}
+Assume in the automaton below the edges are labeled with REs instead of symbols. Suppose we have already eliminated some states and we are about to eliminate state $s$.
+\begin{center}
+\includegraphics[scale=.27]{figures/re14.eps}
+\end{center}
+\end{slide}
+
+\begin{slide}{Example (cont.)}
+Eliminating a non-initial and non-final state:
+\begin{center}
+\begin{tabular}{c|c}
+Before & After\\\hline
+\includegraphics[scale=.27]{figures/re14.eps} &
+\includegraphics[scale=.3]{figures/re15.eps}
+\end{tabular}
+\end{center}
+\end{slide}
+
+\begin{slide}{From an automaton $M$ to a RE}
+\begin{enumerate}
+\item Remove unreachable states from $M$.
+\item If there are no accepting states, return $\emptyset$.
+\item If the start state $q_0$ is part of a loop, create a new state $q_0'$ and make $\delta(q_0',\epsilon)=q_0$.
+\item If $|F|>1$ or there are transitions going out from the final state, then create a new final state $f$ and connect each of the final states in $F$ to $f$ via $\epsilon$-transitions. Remove he old final states from $F$. 
+\item If at this point $M$ has only one state, them that state is both initial and the accepting state and $M$ has no transitions. So $L(M)=\{\epsilon\}$.
+\item Next slide...
+\end{enumerate}
+\end{slide}
+
+\begin{slide}{From an automaton $M$ to a RE}
+\begin{enumerate}
+\item[6.] Until only the start and the accepting state remain do:
+\begin{enumerate}
+\item[6.1] Select some non-final and non-accepting state $q$ of $M$.
+\item[6.2] Remove $q$ from $M$.
+\item[6.3] Modify the transitions rewriting the labels so that $M$ accepts the same strings.
+\end{enumerate}
+\item[7.] Return the one RE that labels the transition that goes from the initial state to the accepting state.
+\end{enumerate}
+\end{slide}
+
+\begin{comment}
+\begin{slide}{From a FA to a RE}
+ For each final state $q$ obtain an equivalent automaton by eliminating from the original automaton all states except $q_0$ and $q$.
+\begin{itemize}
+\item If $q\neq q_0$, then we'll be left with an $A_q$ that looks like
+\begin{center}
+\begin{tabular}{c|c}
+$A_q$ & Corresponding RE\\\hline
+\includegraphics[scale=.15]{figures/re16.eps} &
+\(E_q = (R+SU^*T)^*SU^*\) 
+\end{tabular}
+\end{center}
+\item If $q=q_0$, then we'll be left with $A_q$ looking like
+\begin{center}
+\begin{tabular}{c|c}
+$A_q$ & Corresponding RE\\\hline
+\includegraphics[scale=.15]{figures/re17.eps} & $E_q=R^*$
+\end{tabular}
+\end{center}
+\item The final expression is $\displaystyle\biguplus_{q\in F}E_q$
+
+\end{itemize}
+\end{slide}
+\end{comment}
+
+\begin{slide}{Example}
+Find a RE from the automaton $A$ whose language is the set of binary strings that have a 1 either two or three positions from the end, {\em i.e.}, 
+\[
+L(A)=\{w:w=x1b\mbox{ or }w=x1bc, x\in\{0,1\}^*, b\in\{a,1\}, c\in\{0,1\}\}
+\]
+\begin{center}
+\includegraphics[scale=.3]{figures/re18.eps}
+\end{center}
+On the board.
+\end{slide}
+
+\begin{comment}
+\begin{slide}{Example (cnt.)}
+\begin{center}
+\includegraphics[scale=.3]{figures/re20.eps}
+\end{center}
+Then we have to branch, since there are two accepting states left and no non-accepting state other than the initial state.
+\end{slide}
+
+\begin{slide}{Example (cnt.)}
+\begin{center}
+\includegraphics[scale=.3]{figures/re21.eps}
+\end{center}
+\end{slide}
+
+\begin{slide}{Example (cnt.)}
+And from the original FA
+\begin{center}
+\includegraphics[scale=.3]{figures/re22.eps}
+\end{center}
+The Final RE is the union of the previous REs \[(0 + 1)^*1(0 + 1)(0 + 1) + (0 + 1)^*1(0 + 1)\]
+\end{slide}
+\end{comment}
+
+\begin{slide}{From RE to \enfa}
+\begin{itemize}
+\item {\bf Theorem: } For every RE $R$ we can construct and \enfa\ $A$, such that $L(A) = L(R)$.
+\item {\bf Proof:} By structural induction:
+\end{itemize}
+{\bf Basis: } Automata for \e, $\emptyset$, and $a$.
+\begin{center}
+\includegraphics[scale=.3]{figures/re23.eps}
+\end{center}
+\end{slide}
+
+\begin{slide}{Proof (cont.)}
+{\bf Induction:} Automata for $R+S$, $RS$, and $R^*$
+\begin{center}
+\includegraphics[scale=.25]{figures/re24.eps}
+\end{center}
+\end{slide}
+
+\begin{slide}{Example}
+\begin{itemize}
+\item  Convert the following RE to an \enfa.
+\[(0+1)^*1(0+1)\]
+\end{itemize}
+\end{slide}
+
+\begin{slide}{Exercise}
+\begin{itemize}
+\item Given the following FA, use the recursive relation $R^k_{ij}=R^{k-1}_{ij}+R^{k-1}_{ik}(R^{k-1}_{kk})R^{k-1}_{kj}$ to compute $R_{ij}^{(0)}$ and $R_{ij}^{(1)}$, for $i=1,2, j=1,2$.
+
+\begin{center}
+\includegraphics[scale=.5]{figures/DFA2REex2.eps}
+\end{center}
+
+\end{itemize}
+\end{slide}
+
+\begin{slide}{Exercise}
+\begin{itemize}
+\item Convert the following DFA to a regular expression using the state-elimination technique. Eliminate states in the following order: $p, r, s, q$.
+
+\begin{center}
+\includegraphics[scale=.5]{figures/DFA2REex3.eps}
+\end{center}
+\item Do it again eliminating states $r,s,q,p$, in order, then verify if the resulting RE represents the same language described by the RE you obtained above.
+\end{itemize}
+\end{slide}
+
+\begin{slide}{Regular Expressions in the real world}
+\begin{minipage}{4cm}
+\begin{itemize}
+\item REs are used in the specification of a {\blue lexical analyser}, an important component of a compiler.
+\end{itemize}
+\end{minipage}
+\begin{minipage}{3cm}
+\begin{center}
+\includegraphics[scale=.6]{figures/compseq.eps}
+\end{center}
+\end{minipage}
+\end{slide}
+
+\begin{slide}{Specifying patterns in Lex/Flex}
+\begin{minipage}{6cm}
+\begin{center}
+Primitives
+\includegraphics[scale=.55]{figures/lex1.eps}
+\end{center}
+\end{minipage}
+\begin{minipage}{4cm}
+\begin{center}
+Examples
+\includegraphics[scale=.6]{figures/lex2.eps}
+\end{center}
+\end{minipage}
+\end{slide}
+
+\begin{slide}{Lex/Flex file structure}
+\begin{center}
+\begin{verbatim}
+... definitions ... 
+%% 
+... rules ... 
+%% 
+... subroutines ... 
+\end{verbatim} 
+\end{center}
+\end{slide}
+
+\begin{slide}{Lex file example}
+\begin{verbatim}
+digit  [0-9] 
+letter [A-Za-z] 
+%{ 
+    int count; 
+%} 
+%%    /* match identifier */ 
+{letter}({letter}|{digit})*   count++; 
+%% 
+int yywrap(void) { 
+  return 1;
+}
+int main(void) { 
+    yylex(); 
+    printf("# of identigfiers = %d\n", count); 
+} 
+\end{verbatim}
+\end{slide}
+
+\end{document}

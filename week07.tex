@@ -1,0 +1,490 @@
+\documentclass{prosper}%[pdf,azure,slideColor,colorBG]{prosper}
+\hypersetup{pdfpagemode=FullScreen}
+
+\usepackage{graphicx}
+\usepackage{graphics}
+\usepackage{rotating}
+\usepackage{amsmath}
+\usepackage{epsfig}
+\usepackage{verbatim}
+
+\newcommand{\enfa}{{$\epsilon$-NFA}}
+\newcommand{\e} {{\mbox{$\epsilon$}}}
+\newcommand{\ra}{\mbox{$\;\rightarrow\;$}}
+\newcommand{\vb}{\mbox{$\;|\:$}}
+\newcommand{\dra}{\mbox{$\;\Rightarrow\;$}}
+\newcommand{\cdra}{\mbox{$\;\stackrel{*}{\Rightarrow}\;$}}
+\newcommand{\lmd}{\mbox{$\;\underset{lm}{\Rightarrow}\;$}}
+\newcommand{\lmdstar}{\mbox{$\;\underset{lm}{\stackrel{*}{\Rightarrow}}\;$}}
+\newcommand{\rmdstar}{\mbox{$\;\underset{rm}{\stackrel{*}{\Rightarrow}}\;$}}
+
+\newcommand{\rmd}{\mbox{$\;\underset{rm}{\Rightarrow}\;$}}\newcommand{\cfg}[1]{$#1 = (V, \Sigma, R, S)$}
+\newcommand{\qed}{{$\;\;\Box$}}
+
+\begin{document}
+\begin{slide}{Parse Trees}
+
+\begin{itemize}
+\item If $w\in L(G)$, for some CFG, then $w$ has a {\blue parse tree} representing the {\blue syntactical structure} of $w$.
+\begin{minipage}{4cm}
+\[
+\begin{array}{l}
+A \ra 0A1\vb B\\
+B\ra \#
+\end{array}
+\]
+\end{minipage}
+\begin{minipage}{5cm}
+\includegraphics[scale=.25]{figures/cfl1.eps}
+\end{minipage}
+%\[
+%A\dra0A1\dra00A11\dra000A111\dra000B111\dra000\#111
+%\]
+
+\item Like derivations, a parse tree is an alternative representation for verifying if a string is in the language defined by a CFG.
+\item The process used for constructing a parse tree for a given string is similar to a derivation of the string. 
+%\item If a grammar is ambiguous, there could be many parse trees for the same string.
+%\item Ideally, we want languages to be unambiguous. But we cannot always remove the ambiguity.
+\end{itemize}
+\end{slide}
+
+\begin{comment}
+\begin{slide}{Constructing Parse Trees}
+Let \cfg{G} be a CFG. A tree is a parse tree for $G$ if: 
+\begin{itemize}
+\item Each interior node is labelled by a variable in $V$. 
+\item Each leaf is labelled by a symbol in $V\cup \Sigma\cup\{\e\}$. 
+Any \e-labelled leaf is the only child of its parent. 
+\item If an interior node is lablelled $A$, and its children (from left to right) are labelled 
+\[
+X_1, X_2,\cdots , X_k 
+\]
+then $A \ra X_1X_2\cdots  X_k \in R$
+\end{itemize}
+\begin{minipage}{6cm}
+Example: given this grammar, construct two parse trees.
+\end{minipage}
+\begin{minipage}{4cm}
+\[
+\begin{array}{l}
+A \ra 0A1\vb B\\
+B\ra \epsilon \vb bB
+\end{array}
+\]
+\end{minipage}
+
+\end{slide}
+\end{comment}
+
+\begin{slide}{Constructing a parse tree}
+We are particularly interested in parse trees where: the {\blue yield} ({string of leafs, from left to right}) is a terminal string, and the root is the start symbol.
+\begin{minipage}{6cm}
+\[
+\begin{array}{l}
+E \ra I \vb E+E\vb E*E\vb (E)\\
+I\ra a\vb b \vb Ia \vb Ib \vb I0 \vb I1
+\end{array}
+\]
+\end{minipage}
+\begin{minipage}{4cm}
+\includegraphics[scale=.33]{figures/cfl6.eps}
+\end{minipage}
+%\begin{minipage}{4.5cm}
+
+The {\blue yield} of the tree is $a*(a+b00)$.
+%\end{minipage}
+%\begin{minipage}{4cm}
+%\includegraphics[scale=.33]{figures/cfl2.eps}
+%\end{minipage}
+\end{slide}
+
+\begin{slide}{Inference, Derivations, and Parse Trees}
+\begin{itemize}
+\item Let \cfg{G}\ be a CFG, and $A\in V$. 
+\item The following methods to determine if $w$ is in the language of $A$ are {\blue equivalent}: 
+\begin{itemize}
+%\item Recursive inference
+\item Derivations: $A\cdra w$, $A\lmdstar w$, or $A\rmdstar w$
+\item Construction of the parse tree with root $A$ and yield $w$.
+\end{itemize}
+\end{itemize}
+\end{slide}
+
+\begin{slide}{Exercise}
+\begin{itemize}
+\item  Provide a grammar for the language $0^*1^n0^n1^*, n>1$.
+\begin{comment}
+\[
+\begin{array}{l}
+S\ra A1B\\
+A \ra 0A \vb \e\\
+B \ra 0B \vb 1B \vb \e
+\end{array}
+\]
+\end{comment}
+\item Provide a parse tree for the following string:
+\[
+0110011
+\]
+\end{itemize}
+\end{slide}
+
+\begin{slide}{Ambiguity in Grammars and Languages}
+\begin{itemize}
+\item A grammar captures the structure of a string through the  parse tree.
+\item But is this structure always unique?
+\item Depending on the application, uniqueness of the structure is highly desirable, e.g., compilers and translators.
+\item A grammar is ambiguous if a  string in the language has two different leftmost (or rightmost) derivations or parse trees.
+\end{itemize}
+Let's see an example.
+\end{slide}
+
+\begin{slide}{Ambiguity in Grammars}
+\begin{itemize}
+\item A grammar \cfg{G} is ambiguous if there is a string in $\Sigma^*$ that has more than one parse tree. 
+\item Example: In the grammar:
+\(
+E\ra I \vb E+E \vb E*E \vb (E)\cdots
+\)
+The sentential form {\blue\bf $E+E*E$} has two different {parse trees}:
+\[
+\begin{array}{l}
+E\dra E+E \dra E+E*E\\
+E\dra E*E \dra E+E*E
+\end{array}
+\]
+\begin{center}
+\includegraphics[scale=.3]{figures/clf7.eps}
+\end{center}
+\end{itemize}
+\end{slide}
+
+\begin{slide}{Removing ambiguity from grammars}
+\begin{itemize}
+\item Good news: there are ad hoc methods to reduce and remove ambiguity
+\item Bad news: there is no general algorithm to remove umbiguity. Worse yet: some grammars are inherently ambiguous.
+\end{itemize}
+Let's study some techniques for spotting and reducing ambiguity in grammars.
+\end{slide}
+
+\begin{slide}{Techniques for reducing ambiguity}
+We'll consider three grammar structures that often lead to ambiguity:
+\begin{itemize}
+\item $\epsilon$ rules like $S\rightarrow \epsilon$
+\item Symmetric recursive rules like $S\rightarrow SS$
+\item Rules that lead to ambiguous attachment of optional postfixes, e.g., $S\rightarrow aS | aSb$
+\end{itemize}
+Why $\epsilon$ rules are problematic? Consider $S\rightarrow SS | a|\epsilon$. 
+\begin{itemize}
+\item There are many possible derivations/parse trees for the string $a$ as we can use $S\ra SS$ repeatedly, and then get rid of the unnecessary $S$s by using $S\ra \epsilon$. E.g.:
+\end{itemize}
+\[
+\begin{array}{l}
+S\dra SS\dra SSS \dra aSS\dra aS \dra a\\
+S\dra SS\dra S\dra a
+\end{array}
+\]
+\end{slide}
+
+\begin{slide}{Eliminating \e-rules}
+\begin{itemize}
+%\item  \e-productions, although convenient, are not essential.
+\item {\em  Basic idea}: Suppose $A$ is {\blue nullable} (i.e., $A \cdra \e$). We'll then replace a rule like
+like \(
+C \ra BAD
+\)
+with
+\(
+ C\ra BAD, C\ra BD
+\)
+ and delete any rules with body \e.
+ \end{itemize}
+ Algorithm {$RemoveEps(G)$}, where $G=(V,T, R, S)$:
+ \begin{enumerate}
+ \item {\em Obtain the set of all nullable symbols, $n(G)$,  in $G$}:
+ \begin{itemize}
+ \item {\bf Basis}: For all rules $A\ra \e\in R$, include $A$ in $n(G)$. 
+ \item {\bf Induction}: For all rules $A	\ra C_1C_2\cdots C_k \in R$.\\ If $\{C_1,C_2,\cdots, C_k\}	\subseteq	n(G)$, then include $A$ in $n(G)$.
+ \end{itemize}
+ \item {\em Obtain the new grammar $G_1$}:  for each rule $A\ra X_1X_2\cdots X_k$ of $R$, suppose $m$ of the $k$ $X_i$'s s are nullable. Then $G_1$ will contain $2^m$ versions of this rule, where the nullable $X_i$'s in all combinations are present or absent.
+\end{enumerate}
+\end{slide}
+
+\begin{slide}{Eliminating \e-rules: example}
+\begin{itemize}
+\item Let $G$ be $S\ra AB, A\ra aAA\vb\e, B\ra bBB\vb\e$
+\item Now $n(G) = \{A, B, S\}$. The first rule will become: $S \ra AB\vb A\vb B$,
+the second $A \ra aAA\vb aA\vb aA\vb a$, and the third $B \ra bBB\vb bB\vb bB\vb b$
+\item We then delete the redundant rules, and end up with grammar $G_1$ :
+\(
+S \ra AB\vb A\vb B, A \ra aAA\vb aA\vb a, B \ra bBB\vb bB\vb b
+\)
+\end{itemize}
+Ok, I got it. But what if L(G) contains  $\epsilon$ and it is important to retain it? E.g.:
+\[
+\begin{array}{l}
+S\rightarrow (S)\\
+S \rightarrow SS\\
+S\rightarrow \epsilon
+\end{array}
+\]
+\end{slide}
+
+\begin{slide}{A highly ambiguous grammar}
+\[
+\begin{array}{l}
+S\rightarrow (S)\\
+S \rightarrow SS\\
+S\rightarrow \epsilon
+\end{array}
+\]
+Parse tree for the string $(())()$
+\begin{center}
+\includegraphics[scale=.4]{figures/highlyambiguous.eps}
+\end{center}
+\end{slide}
+
+\begin{slide}{When $\epsilon \in L(G)$}
+We use the following algorithm to rewrite the grammar.\\\ 
+
+{
+$atMostOneEps(G)$:
+\begin{enumerate}
+\item $G'' = RemoveEps(G)$.
+\item If start symbol $S$ of $G$ is nullable then
+\begin{enumerate}
+\item Create in $G''$ a new start symbol $S'$.
+\item Add to R the two rules:
+\[
+\begin{array}{l}
+	       		S' \rightarrow \epsilon\\  
+				S' \rightarrow S
+\end{array}
+\]
+\item Return $G''$.
+\end{enumerate}
+\end{enumerate}}
+\end{slide}
+
+\begin{slide}{Applying $atMostOneEps(G)$}
+\begin{minipage}{6cm}
+{\bf Original Grammar}:
+\[
+\begin{array}{l}
+S\rightarrow (S)\\
+S \rightarrow SS\\
+S\rightarrow \epsilon
+\end{array}
+\]
+\end{minipage}
+\begin{minipage}{4cm}
+{\bf  $removeEps$:}
+\[
+\begin{array}{l}
+S\rightarrow (S)\\
+S\ra ()\\
+S \rightarrow SS\\
+\end{array}
+\]
+\end{minipage}
+
+\begin{minipage}{6cm}
+{\bf Result of $atMostOneEps$:}
+\[
+\begin{array}{l}
+S'\rightarrow \epsilon\\
+S'\rightarrow S\\
+S\rightarrow (S)\\
+S\ra ()\\
+S \rightarrow SS\\
+\end{array}
+\]
+
+\end{minipage}
+\end{slide}
+
+\begin{slide}{But there is still ambiguity}
+\begin{minipage}{5cm}
+\[
+\begin{array}{l}
+S'\rightarrow \epsilon\\
+S'\rightarrow S\\
+S\rightarrow (S)\\
+S\ra ()\\
+S \rightarrow SS\\
+\end{array}
+\]
+\end{minipage}
+\begin{minipage}{6cm}
+What about $()()()$?
+\end{minipage}
+\begin{center}
+\includegraphics[scale=.3]{figures/stillambiguous.eps}
+\end{center}
+\end{slide}
+
+\begin{slide}{Eliminating symmetric recursive rules}
+\begin{minipage}{3cm}
+\[
+\begin{array}{l}
+S'\rightarrow \epsilon\\
+S'\rightarrow S\\
+S\rightarrow (S)\\
+S\ra ()\\
+
+S \rightarrow SS\\
+\end{array}
+\]
+\end{minipage}
+\begin{minipage}{8cm}
+\begin{itemize}
+\item Replace    $S \rightarrow  SS$ with one of:
+\[
+\begin{array}{l}
+    S \ra SS_1 \;\mbox{		 force branching to the left}\\
+    S \ra S_1S 	\;\mbox{	 force branching to the right}
+\end{array}
+\]
+\item add $S\ra S_1$ to the grammar, and 
+\item change $S\ra (S), S\ra ()$ to $S_1\ra (S), S_1\ra ()$
+\end{itemize}
+\end{minipage}
+
+\vspace{0.5cm}
+So we get
+\[
+\begin{array}{l}
+S'\rightarrow \epsilon\;\;\;\;\;\;S\ra SS_1\\
+S'\rightarrow S\;\;\;\;\;\;S\ra S_1\\
+S_1\rightarrow (S)\\
+S_1\rightarrow ()
+\end{array}
+\]
+\end{slide}
+
+
+\begin{slide}{Ambiguous attachment}
+A third source for ambiguity arises when constructs with optional fragments are nested. E.g.
+\[
+S \rightarrow aS \;|\; aSb
+\]
+Two different parse trees for the string {\tt aab}
+
+\begin{center}
+\includegraphics[scale=.3]{figures/pt1.eps}
+\hspace{1cm}
+\includegraphics[scale=.3]{figures/pt2.eps}
+\end{center}
+Exercise: provide a unambiguous grammar that recognizes the same language.
+\end{slide}
+
+
+\begin{slide}{Ambiguous attachment (cont.)}
+The dangling else problem:
+\\\ \\
+\begin{verbatim}
+<stmt> ::= if <cond> then <stmt>
+<stmt> ::= if <cond> then <stmt> else <stmt>
+\end{verbatim}
+\ \\\ \\
+Consider:
+\\\ \\
+{\tt if $cond_1$ then if $cond_2$ then $st_1$ else $st_2$}
+\\\ \\
+Should the {\tt else} go with with the innermost {\tt if} or with the outermost {\tt if}?
+
+\end{slide}
+
+\begin{slide}{The dangling else problem}
+\begin{verbatim}
+<stmt> ::= if <cond> then <stmt>
+<stmt> ::= if <cond> then <stmt> else <stmt>
+\end{verbatim}
+\ \\\ \\
+{\tt if $cond_1$ then if $cond_2$ then $st_1$ else $st_2$}
+
+\begin{center}
+\includegraphics[scale=.5]{figures/danglingelse.eps}
+\end{center}
+\end{slide}
+
+\begin{slide}{The Java Fix}
+The grammar guarantees that, if a top-level {\tt if} has an {\tt else}, then the embedded {\tt if} must also have one.
+\begin{center}
+\includegraphics[scale=.21]{figures/javafix.eps}
+\end{center}
+\end{slide}
+
+\begin{slide}{Arithmetic Expressions: a better way}
+Let's study this grammar:
+\[
+\begin{array}{l}
+E \ra I \vb E + E \vb E * E \vb (E)\\
+I \ra a \vb b \vb Ia \vb Ib \vb I0 \vb I1
+\end{array}\]
+\begin{itemize}
+\item Problems: no precedence between * and +, and no left (or right) associativity.
+\item How to solve that? Redesign the grammar so that parse trees would reflect such structure.
+\end{itemize}
+\end{slide}
+
+\begin{slide}{Solution}
+Introducing variables that represent "binding strength".
+\begin{enumerate}
+\item A {\blue factor} is an expression that cannot be broken apart by an adjacent $*$ or $+$. E.g.: Identifiers and a parenthesized expression. \hspace{1cm} $F\ra I\vb(E)$
+\item A {\blue term} is an expression that cannot be broken by $+$. E.g.: $a * b$, or a {\blue factor}. \hspace{1cm}$T\ra F\vb T*F$
+\item The rest are {\blue expressions}, i.e., they can be broken apart with $*$ or $+$. \hspace{1cm} $E\ra T\vb E+T$
+\end{enumerate}
+\begin{minipage}{6cm}
+The original grammar:
+\[
+\begin{array}{l}
+E \ra I \vb E + E \vb E * E \vb (E)\\
+I \ra a \vb b \vb Ia \vb Ib \vb I0 \vb I1
+\end{array}\]
+\end{minipage}
+\begin{minipage}{5cm}
+The redesigned grammar:
+\[
+\begin{array}{l}
+E \ra T \vb E+T\\
+T \ra F \vb T*F\\
+F \ra I \vb (E)\\
+I \ra a \vb b \vb Ia \vb Ib \vb I0 \vb I1
+\end{array}\]
+\end{minipage}
+\end{slide}
+
+\begin{slide}{The redesigned grammar}
+\[
+\begin{array}{l}
+E \ra T \vb E+T\\
+T \ra F \vb T*F\\
+F \ra I \vb (E)\\
+I \ra a \vb b \vb Ia \vb Ib \vb I0 \vb I1
+\end{array}\]
+\begin{center}
+Now the only parse tree for $a+a*a$ will be\\
+\includegraphics[scale=.27]{figures/cfl9.eps}
+\end{center}
+\end{slide}
+
+
+\begin{slide}{Exercise}
+Suppose you are designing a programming language and want to specify the syntax for valid type declarations, e.g.:
+\begin{verbatim}
+int x, z=3;
+real y;
+complex s;
+\end{verbatim}
+
+Provide a grammar that defines the syntax for such type declarations.
+
+Assumptions:
+\begin{itemize}
+\item variable identifiers: $x, y, z, s$
+\item numbers: $0, 1, 2, \cdots, 9$
+\item types: $int, real, complex$
+\end{itemize}
+\end{slide}
+\end{document}

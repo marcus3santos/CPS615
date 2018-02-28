@@ -1,0 +1,518 @@
+\documentclass{prosper}%[pdf,azure,slideColor,colorBG]{prosper}
+\hypersetup{pdfpagemode=FullScreen}
+
+\usepackage{graphicx}
+\usepackage{graphics}
+\usepackage{rotating}
+\usepackage{verbatim}
+
+\usepackage{epsfig}
+
+\newcommand{\quiz}[1]{{\hfill \tiny{$_{ #1}$}}}
+
+\newcommand{\enfa}{{$\epsilon$-NFA}}
+\newcommand{\e} {{\mbox{$\epsilon$}}}
+\newcommand{\autom}[1]{$#1 = (Q, \delta, \Sigma, q_0, F)$}
+\newcommand{\sg}{{\mbox{$\Sigma$}}}
+
+\begin{document}
+
+
+\begin{slide}{Manipulating and simplifying REs}
+\begin{itemize}
+\item These techniques are based on the equivalence of languages  REs define.
+\item The meaning of every RE is a language, i.e, {\blue it is a set}. 
+\end{itemize}
+{\blue Identities for union of REs}
+\begin{itemize}
+\item Union is commutative, associative, and idempotent: 
+\[
+\begin{array}{ll}
+\mbox{commutative:} & A+B= B+A \\
+\mbox{associative:} & (A+B)+C=A+(B+C)\\
+\mbox{idempotent:} &  A+A=A
+\end{array}
+\]
+\item $\emptyset$ is the identity for union: $A+\emptyset=\emptyset+A=A$
+\item If $L(B)\subseteq L(A)$, then $A+B=A$. E.g.: $a^*+aa=a^*$, since $L(aa)\subseteq L(a^*)$
+\end{itemize}
+\end{slide}
+
+\begin{slide}{Identities for concatenation}
+\begin{itemize}
+\item Concatenation is associative: $(AB)C=A(BC)$.
+\item $\epsilon$ is the identity for concatenation: $A\epsilon=\epsilon A=A$.
+\item $\emptyset$ is {\em zero} for concatenation: $A\emptyset=\emptyset A=\emptyset$.
+\item Concatenation distributes over union: 
+\[
+\begin{array}{l}
+(A+B)C=(AC)+(BC)\\
+ C(A+B)=(CA)+(CB)
+ \end{array}
+ \]
+\end{itemize}
+\end{slide}
+
+\begin{slide}{Identities for Kleene star}
+\begin{itemize}
+\item $\emptyset^*=\epsilon, \epsilon^*=\epsilon$
+\item $(A^*)^*=A^*$: Notice $L((A^*)^*)$ contains concatenations of $A^*$, which are in turn concatenations of $L(A)$, i.e., $A^*$.
+\item If, $L(A^*)\subseteq L(B^*)$, then $A^*B^*=B^*$, e.g.:
+\[
+\begin{array}{ll}
+A^*A^*=A^*, &\mbox{since }L(A^*)\subseteq L(A^*)\\
+A^*(A+B)^*=(A+B)^*, &\mbox{since }L(A^*)\subseteq L((A+B)^*)
+\end{array}
+\]
+\item Similarly, if $L(B^*)\subseteq L(A^*)$, then $A^*B^*=A^*$.
+\item $(A+B)^*=(A^*B^*)^*$.
+\item If $L(B)\subseteq L(A^*)$, then $(A+B)^*=A^*$, e.g., $(a+\epsilon)^*=a^*$, since $\{\epsilon\} \subseteq L(a^*)$.
+\end{itemize}
+\end{slide}
+
+\begin{slide}{Simplifying an expression}
+{\small
+\(
+\begin{array}{lllllllll}
+&({\blue(a^*+\emptyset)^*}&+aa)&(b+&bb)^*&b^*&((a+b)^*b^*+ab)^* \ _{\{\blue L(\emptyset)\subseteq L(a^*)\}} \\
+=&({\blue (a^*)^*}&+aa)&(b+&bb)^*&b^*&((a+b)^*b^*+ab)^*\\
+=&{\blue( a^*}&{\blue +aa)}&(b+&bb)^*&b^*&((a+b)^*b^*+ab)^* \ _{\blue\{ L(aa)\subseteq L(a^*)\}}\\
+=&a^*&&{\blue (b+}&{\blue bb)^*}&b^*&((a+b)^*b^*+ab)^*\ _{\blue\{ L(bb)\subseteq L(b^*)\}}\\
+=&a^*&&{\blue b^*}&&{\blue b^*}&((a+b)^*b^*+ab)^*\\
+=&a^*&&b^*&&&({\blue (a+b)^*b^*}+ab)^* \ _{\blue \{L(b^*)\subseteq L((a+b)^*)\}}\\
+=&a^*&&b^*&&&({\blue (a+b)^*+ab})^* \ _{\blue \{L(ab)\subseteq L((a+b)^*)\}}\\
+=&a^*&&b^*&&&{\blue ((a+b)^*)^*} \\
+=&a^*&&{\blue b^*}&&&{\blue (a+b)^*} \ _{\blue \{L(b^*)\subseteq L((a+b)^*)\}}\\
+=&{\blue a^*}&&&&&{\blue (a+b)^*} \ _{\blue \{L(a^*)\subseteq L((a+b)^*)\}}\\
+=&&&&&&(a+b)^* 
+\end{array}
+\)
+}
+\end{slide}
+
+\begin{comment}
+\begin{slide}{}
+
+\begin{itemize}
+\item In our study of REs you may have faced the question on whether or not two given REs are equivalent.
+\item Typical question: How do we verify that a certain identity, say $L((E+F)G)=L(EG+FG)$ for any REs $E$, $F$, and $G$ is true?\\ Two options:
+\begin{itemize}
+\item Prove it by hand.
+\item Let the computer prove it (to be seen later, when we study Chpt 4)
+\end{itemize}
+\end{itemize}
+\end{slide}
+
+\begin{slide}{Algebraic laws for REs (cnt.)}
+Below are some algebraic rules to help us determine the equivalency of REs .
+\begin{itemize}
+\item Union is commutative and associative:
+\[\begin{array}{ll}
+L+ M=M+ L\\
+(L+ M)+ N = L + (M+ N)
+\end{array}
+\]
+\item Concatenation is associative:
+\[(LM)N=L(MN)\]
+But is not commutative: $LM\neq ML$.
+\end{itemize}
+
+\end{slide}
+
+\begin{slide}{Identity and Annihilators}
+\begin{itemize}
+\item An {\em identity} for an operator is a value such that when an operator is applied to the identity and some other value, the result is the other value.
+\begin{itemize}
+\item $\emptyset$ is identity for union: $\emptyset + L = L + \emptyset= L$
+\item $\e$ is left and right identity for concatenation: \[\e L=L\e=L\]
+\end{itemize}
+\item An {\em annihilator} for an operator is a value that when an operator is applied to the annihilator and some other value, the result is the annihilator.
+\begin{itemize}
+\item $\emptyset$ is {\em left} and {\em right annihilator} for concatenation:
+\[\emptyset L = L \emptyset = \emptyset\]
+\end{itemize}
+\end{itemize}
+\end{slide}
+
+\begin{slide}{More laws}
+\begin{itemize}
+\item Concatenation is {\em left distributive} over union: $L(M+N)=LM+LN$
+\item Concatenation is {\em right distributive} over union: $(M+N)L=ML+NL$
+\item Union is {\em idempotent}: $L+L=L$
+\item Laws for closures:
+\begin{itemize}
+\item $\emptyset^*=\e, \e^*=\e$
+\item $L^+=LL^*=L^*L, L^*=L^++\e$
+\item $(L^*)^*=L^*$
+\item $L?=\e+L$
+\end{itemize}
+\end{itemize}
+\end{slide}
+
+\begin{slide}{Testing an algebraic law for REs}
+\begin{itemize}
+\item The test for whether $E=F$ is true or not :
+\begin{enumerate}
+\item Convert $E$ and $F$ to  {\blue concrete} regular expressions $\cal C$ and $\cal D$, respectively, by replacing each variable by a concrete symbol.
+\item {\blue Test} whether $L({\cal C})=L({\cal D})$. If so, then $E=F$ is true, and if not, the "law" is false.
+\end{enumerate}
+%\item This is not a test on whether two REs denote the same language.
+\item We shall resort to {\em ad-hoc} means to decide the equality of the pair of languages, which may include counter examples, proofs by induction, and other kinds of proofs.
+\end{itemize}
+\end{slide}
+
+\begin{slide}{Examples}
+\begin{itemize}
+\item To prove $(L + M)^* = (L^*M^*)^*$ it is enough to determine if $(a+b)^*$ is equivalent to $(a^*b^*)^*$
+\begin{description}
+\item[Answer:] Both REs denote language with all strings of $a$'s and $b$'s. Thus the two concrete expressions denote the same language, and the law holds.
+\end{description}
+\item To verify $L^* = L^*L^*$ test if $a^*$ is equivalent to $a^*a^*$.
+\begin{description}
+\item[Answer:] Both REs denote the  language with all strings of $a$'s. Thus the two concrete expressions denote the same language, and the law holds.
+\end{description}
+\item Question: Does $L + ML = (L + M)L$ hold? And $L + ML = (\e + M)L$?
+\end{itemize}
+\end{slide}
+\end{comment}
+
+\begin{slide}{Properties of Regular Languages}
+\begin{itemize}
+\item {\em Regular and Non Regular languages}:  The language $a^*b^*$ is regular. The language $\{a^nb^nL n\geq0\}$ is not regular. (intuition: it is not possible, given a finite number of states, to count the $a$'s and then compare that count with the \# of b's).
+\begin{itemize}
+\item How can we show that a language is regular?
+\item How can we show that a language is not regular?
+\end{itemize} 
+\item {\em Closure properties}:  can be used to help us prove that a language is not regular.
+\end{itemize}
+\end{slide}
+
+\begin{slide}{Showing that a language is regular}
+{\em Every finite language $L$ is regular}. Proof: 
+\begin{itemize}
+\item If $L=\emptyset$, then it is defined by the RE $\emptyset$. So it is regular.
+\item If $L$ is a finite set of strings $\{s_1, s_2, \cdots,s_n\}$, then it is defined by the RE $s_1+s_2+\cdots +s_n$. So it is regular.
+\end{itemize}
+And for infinite languages, we have developed 4 techniques for showing that a regular language $L$ is regular: 
+\begin{itemize}
+\item exhibit a DFA for $L$, 
+\item exhibit an NFA for $L$, 
+\item exhibit an \e-NFAfor $L$, or
+\item exhibit an RE for $L$.
+\end{itemize}
+\end{slide} 
+
+\begin{comment}
+\begin{slide}{The Pumping Lemma, informally}
+\begin{itemize}
+\item Suppose $L=\{0^n1^n:n\geq 1\}$ is regular
+\item Then it would be recognized by some DFA $A$
+with, say, $k$ states. 
+\begin{comment}
+\[\begin{array}{ll}
+\e & p_0\\
+0 & p_1\\
+00 &p_2\\
+\cdots & \cdots\\
+0^k&p_k
+\end{array}
+\]
+\item Since there are only $k$ states,  after reading two different prefixes, say $0^i$ and $0^j$, $A$ must be in the same state, say $q$, from which it will start to recognize the 1s.
+\begin{itemize}
+\item If $\hat{\delta}(q, 1^i)\in F$, then $A$ will foolishly accept $0^j1^i$.
+\item If $\hat{\delta}(q, 1^i) \notin F$, then $A$ will foolishly reject $0^i1^i$.
+\end{itemize}
+\end{itemize}
+Therefore, the language is not regular.
+\end{slide}
+\end{comment}
+
+\begin{slide}{Showing that a language is not regular}
+\begin{itemize}
+\item How can we show that there are no RL descriptors  for a given language $L$?
+\item It is not sufficient to argue that we tried to find a descriptor and we failed. Perhaps we did not look in the right place...
+\item We need a technique that does not rely on our cleverness (or lack of it).
+\item And this technique relies on the following observation: every RL $L$ can be accepted by FA $M$ with a finite number of states.
+\item If $L$ is infinite, then there must be at least one loop in $M$.
+\item And sufficiently long strings in $L$ consist of one or more repeating patterns (recognized by the loop in $M$).
+\end{itemize}
+\end{slide}
+
+\begin{slide}{The Pumping Lemma, formally}
+Let $L$ be regular. Then $\exists n, \forall w \in L : |w|\geq n \Rightarrow w=xyz$ such that
+\begin{itemize}
+\item $y\neq \e$
+\item $|xy| \leq n$
+\item $\forall k\geq 0, xy^kz\in L$
+\end{itemize}
+That is, we can always find a string $y$ that can be either deleted or ``pumped'', i.e., repeated any number of times, resulting in a string in $L$.
+\end{slide}
+
+\begin{slide}{Proving the pumping lemma}
+Suppose $L$ is regular. Then $L$ is recognized by some DFA $A$ with, say $n$ states.
+\begin{itemize}
+\item Let $w=a_1a_2\cdots a_m \in L, m\geq n$.
+\item Let $p_i=\hat{\delta}(q_0, a_1a_2\cdots a_i)$, i.e., $p_i$ is the state $A$ is in after reading $i$ symbols of $w$. 
+%\item Therefore, due to the pigeon hole principle, since there are only $n$ states in $A$,  $\exists j>i:p_i=p_j$, 
+%\end{itemize}
+\item Consider what happens if the DFA receives the input $w=xy^kz$, where
+\end{itemize}
+\begin{minipage}{6cm}
+\[
+\begin{array}{l}
+x=a_1a_2\cdots a_i \\
+y=a_{i+1}a_{i+2}\cdots a_j  \\
+z=a_{j+1}a_{j+2}\cdots a_m
+\end{array}
+\]
+\end{minipage}
+\begin{minipage}{4cm}
+ \includegraphics[scale=.35]{figures/re27.eps}
+\end{minipage}
+Clearly  $xy^kz \in L$, for any $k\geq 0$. 
+\end{slide}
+
+\begin{slide}{How to apply the pumping lemma}
+\begin{itemize}
+\item You assume the language $L$ in question is regular.
+\item You consider a certain pumping length $p$. (Do not bind $p$ to a certain number. I.e., don't say ``Let $p=3$'', for instance. Leave it general.)
+\item You find a string $|w|\geq p$ in the language. (Pick a string that you think you will not be able to pump).
+\item Split the string $w=xyz$, so that $|y|>0$ and $|xy|\leq p$.
+\item Show that there is no possible split of $w$ in which $\forall i\geq 0$, $xy^iz \in L$. In other words, for every split of $w$ there will be a value of $i$ where $xy^iz \not\in L$.
+\end{itemize}
+\end{slide}
+
+\begin{slide}{Pumping Lemma: example}
+Proving that a language is not a regular language.
+
+Example: Let $L=\{0^n1^n: n\geq 1\}$. Show that $L$ is not regular.
+\begin{itemize}
+\item Assume $L$ is regular. Try to prove that the PL holds for a certain pumping length  $p$.
+\item  Choose $w=0^p1^p$. (Hence satisfying the conditions $w\in L$ and $|w|\geq p$).
+\item Split $w$ into $w=xyz$ so that $|xy| \leq p$ and $|y|>0$.
+\item If $y$ contain only zeros, or straddles the middle point, or contains only 1s, then by pumping $y$ we'll obtain a string not in $L$.
+\item Therefore there is a contradiction. $L$ is not regular.
+\end{itemize}
+\end{slide}
+
+\begin{slide}{\large Some Closure Properties of Regular Languages}
+Let $L$ and $M$ be regular languages. Then the following languages are all regular:
+\begin{itemize}
+\item Union: $L\cup M$
+\item Intersection: $L\cap M$
+\item Complement: $\overline{N}$
+\item Difference: $L-M$
+\item Reversal: $L^R =\{w^R :w\in L\}$
+\item Kleene star: $L^*$
+\item Concatenation: $L.M$
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}{Closure properties (cnt.)}
+\begin{itemize}
+\item {\blue Union}:
+\begin{description}
+\item[Theorem:] For any regular languages $R$ and $M$, $R\cup M$ is regular.
+\item[Proof:] Let $R = L(E)$ and $M = L(F)$. Then $L(E+F)=L\cup M$ by definition.
+\end{description}
+\item Complement:
+\begin{description}
+\item[Theorem:] If $R$ is a regular language over \sg, then so is $\overline{R}=\sg^*-R$.
+\item[Proof:] Let $R$ be recognized by a DFA $A = (Q,\sg,\delta,q_0,F)$.
+Let $B=(Q,\sg,\delta,q_0,Q-F)$. Now $L(B)=\overline{R}$.
+\end{description}
+\end{itemize}
+\end{slide}
+
+\begin{slide}{Example}
+Let $L$ be recognized by the DFA below
+\begin{center}
+ \includegraphics[scale=.4]{figures/re35.eps}
+\end{center}
+$\overline{L}$ is recognized by
+\begin{center}
+ \includegraphics[scale=.4]{figures/re36.eps}
+\end{center}
+\end{slide}
+
+\begin{slide}{Closure properties (cont.)}
+\begin{itemize}
+\item {\blue Intersection}:
+\begin{description}
+\item[Theorem:] If $L$ and $M$ are regular, then so is $L 
+\cap M$. 
+\item[Proof 1:] By DeMorgan's law $L\cap M = \overline{\overline{L} \cup \overline{M}}$. We already know that regular languages are closed under complement and union. 
+
+\item[Proof 2:] Let $L$ be the language of two DFAs
+\[A_L = (Q_L, \sg, \delta_L, q_L, F_L)\]  and $M$ be the language of \[A_M = (Q_M , \delta, \delta_M , q_M , F_M)\] We construct an automaton that simulates $A_L$ and $A_M$ in parallel.
+\end{description}
+\end{itemize}
+\end{slide}
+
+\begin{slide}{Proof  idea (cnt.)}
+If $A_L$ goes from state $p$ to state $s$ on reading $a$, 
+and $A_M$ goes from state $q$ to state $t$ on reading 
+$a$, then $A_L\cap M$ will go from state $(p, q)$ to state 
+$(s, t)$ on reading $a$.
+%\begin{minipage}{7cm}
+\[
+A=(Q_L\times Q_M, \Sigma, \delta, (q_L,q_M), F_L\times F_M)
+\] where $\delta((p,q), a) = (\delta(p, a), \delta(q, a))$
+%\end{minipage}
+%\begin{minipage}{5cm}
+\begin{center}
+ \includegraphics[scale=.4]{figures/re37.eps}
+\end{center}
+%\end{minipage}
+\end{slide}
+
+\begin{slide}{Example}
+DFA (c) recognizes the intersection of the languages recognized by DFAs (a) and (b). To see why, obtain the languages that DFAs (a) and (b) recognizes, and verify that (c) recognizes all those strings in the intersection of those languages.
+\begin{center}
+ \includegraphics[scale=.3]{figures/re38.eps}
+\end{center}
+\end{slide}
+
+\begin{slide}{Closure properties (cnt.)}
+\begin{itemize}
+\item {\blue Difference}: {\bf Theorem:} If $L$ and $M$ are regular languages, then so is $L - M$.
+\begin{description}
+\item[Proof:] Observe that $L-M = L \cap \overline{M}$ . We 
+already know that regular languages are closed 
+under complement and intersection. 
+\end{description}
+\item {\blue Reverse}: {\bf Theorem:} If $L$ is a regular language, then so is $L^R$. 
+\begin{description}\item[Proof:] Let $L$ be recognized by an FA $A$.  Turn $A$ into an FA for $L^R$, by\\ 
+1. Reversing all arcs.\\ 
+2. Make the old start state the new sole accepting state. \\
+3. Create a new start state $p_0$, with $\delta(p_0,\e) = F$ (the old accepting states). 
+\end{description}
+\end{itemize}
+\end{slide}
+
+\begin{slide}{Exercise}
+Given the automata below, prove that $L(P)-L(Q)$ is a regular language by showing an automaton that recognizes it.
+
+\begin{minipage}{5cm}
+\begin{center}
+Automaton $P$
+
+\vspace{1cm}
+ \includegraphics[scale=.5]{figures/RLProp1.eps}
+\end{center}
+\end{minipage}
+\begin{minipage}{5cm}
+\begin{center}
+Automaton $Q$
+
+\vspace{1cm}
+ \includegraphics[scale=.5]{figures/RLProp2.eps}
+\end{center}
+\end{minipage}
+
+
+\end{slide}
+
+\begin{slide}{Decision procedures/algorithms for REs}
+\begin{itemize}
+\item {\em Equality of two descriptors}:  Are two descriptors of regular languages equivalent?
+\item {\em Minimality}: is a given DFA minimal?
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}{Equality of two descriptors}
+\begin{itemize}
+\item You can test equality by hand  applying algebraic properties of RLs.
+\item Now we shall learn how to (computationally) test whether two {\blue descriptors for regular languages} are {equivalent}, in the sense that they define the same language.
+\item The plan is as follows: Suppose languages $L$ and $M$ are defined by two descriptors, say,  a RE and an \enfa.
+\begin{enumerate}
+\item Convert each to a DFA, say $D$ and $E$.
+\item Create a new automaton $C=D \cup E$. 
+\item Test if the ``start states'' of $C$ are {\blue equivalent}. If they are, then the descriptors define the same language.
+\end{enumerate}
+\end{itemize}
+\end{slide}
+
+\begin{slide}{When two states are equivalent in a DFA}
+ \begin{itemize}
+ \item Let \autom{A}\ be a DFA, and $\{p,q\} \subseteq Q$. 
+ \item  We say that $p$ and $q$  are {\blue equivalent}, denoted $p\equiv q$,  if:
+ \[
+{\red \forall w}\in\Sigma^*,\hat{\delta}(p,w)\in F \mbox{ iff } \hat{\delta}(q,w)\in F
+\]
+\item If two states $p$ and $q$ are not equivalent, then we say they are {\blue distinguishable}, i.e.:
+\[
+{\red \exists w}:\hat{\delta}(p,w) \in F\mbox{ and }\hat{\delta}(q,w) \not\in F\mbox{, or vice versa}
+\]
+
+
+\end{itemize}
+\end{slide}
+
+
+
+\begin{slide}{Examples}
+\begin{center}
+\includegraphics[scale=.35]{figures/re28.eps}
+\end{center}
+\end{slide}
+
+\begin{slide}{Examples (cnt.)}
+What about $A$ and $E$?
+\begin{tabular}{ll}
+\includegraphics[scale=.24]{figures/re29.eps}
+&
+\includegraphics[scale=.24]{figures/re30.eps}
+\end{tabular}
+\begin{itemize}
+\item We concluded that $A\equiv E$ because no string whatsoever will distinguish $A$ from $E$.
+\item To find states that are equivalent, we make our best efforts to find pairs of states which are distinguishable.
+\end{itemize}
+The next algorithm captures this idea.
+\end{slide}
+
+\begin{slide}{\small The Table-of-Distinguishabilities Filling algorithm (TDFA)}
+We can compute distinguishable pairs with the following inductive algorithm:
+\begin{itemize}
+\item {\bf Basis:} If $p\in F$ and $q\not\in F$, then $p\not\equiv q$.
+\item {\bf Induction:} If $\exists a \in \Sigma: \delta(r, a)\not\equiv \delta(s, a)$,
+then $r\not\equiv s$.
+\end{itemize}
+\begin{minipage}{6cm}
+Given the DFA
+\begin{center}
+\includegraphics[scale=.24]{figures/re29.eps}
+\end{center}
+\end{minipage}
+\begin{minipage}{5cm}
+The TFA yields this table
+\begin{center}
+\includegraphics[scale=.25]{figures/re31.eps}
+\end{center}
+\end{minipage}
+
+The $x$'s in the final table denote pairs of {\blue distinguishable} states; blanks denote pairs of {\blue equivalent} states.
+\end{slide}
+
+\begin{slide}{Test for equivalence of RLs}
+\begin{itemize}
+\item Let $D$ and $C$ be descriptors of regular  languages .
+\item To test if $L(D) = L(C)$
+\begin{enumerate}
+\item Convert both $D$ and $C$ to DFAs.
+\item Imagine the DFA that is the union of the two DFAs (never mind there are two start states)
+\item If the TDFA says that the two start states are distinguishable, then $L(D) \neq L(C)$, otherwise $L(D) = L(C)$.
+\end{enumerate}
+\end{itemize}
+\end{slide}
+
+\begin{slide}{Example}
+Both  FA below accept $L(\e+(0+1)^*0)$. Use the TDFA to verify if they recognize the same language.
+\begin{center}
+\includegraphics[scale=.45]{figures/re32a.eps}
+\end{center}
+\end{slide}
+\end{document}
+

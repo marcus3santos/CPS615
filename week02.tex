@@ -1,0 +1,369 @@
+\documentclass{prosper}%[pdf,azure,slideColor,colorBG]{prosper}
+
+\usepackage{graphicx} 
+\usepackage{graphics}
+\usepackage{rotating}
+\usepackage{verbatim}
+
+\usepackage{epsfig}
+
+\newcommand{\quiz}[1]{{\begin{flushright}\small\tt\blue #1 \end{flushright}}}
+
+\newcommand{\egk}{\mbox{$\epsilon$}}
+\newcommand{\enfa}{{$\epsilon$-NFA}}
+\newcommand{\sg}{{\mbox{$\Sigma$}}}
+
+
+\begin{document}
+
+\begin{slide}{Equivalence between NFA and DFA}
+\begin{itemize}
+\item For many  languages,  it is easier to construct an NFA than a DFA.
+\item Surprisingly, however, for any NFA $N$ there is a DFA $D$,
+such that $L(D) = L(N)$, and vice versa.
+\item  Finding such equivalent DFA  involves an {\blue algorithm for  subset construction}, an important example on how an automaton $B$ can be generically constructed from another automaton $A$.
+\item Given an NFA \(N=(Q_N,\Sigma, \delta_N, q_0, F_N)\), we will construct a DFA \(D=(Q_D, \Sigma, \delta_D, \{q_0\}, F_D)\) such that $L(D)=L(N)$
+\end{itemize}
+\end{slide}
+
+\begin{slide}{The subset construction method}
+\begin{minipage}{6.5cm}
+\begin{itemize}
+\item $Q_D=\{S:S\subseteq Q_N\}$. \\
+Note: \begin{itemize}
+\item $Q_D$ consists of all possible subsets of $Q_N$
+\item $|Q_D|=2^{|Q_N|}$, although most states in $Q_D$ are likely to be garbage.
+\end{itemize}
+\item $\Sigma_D=\Sigma_N$
+\item $q_{0D} = q_{0N}$
+\item $F_D=\{S\subseteq Q_N:S\cap F_N\neq \emptyset\}$
+\end{itemize}
+\end{minipage}
+\begin{minipage}{4cm}
+%\begin{center}
+\includegraphics[scale=.27]{figures/nfa3.eps}
+%\end{center}
+\[
+\begin{array}{r||l|l}
+&0&1\\\hline\hline
+\emptyset&&\\
+\rightarrow\{q_0\}&&\\
+\{q_1\}&&\\
+\star\{q_2\}&&\\
+\{q_0, q_1\}&&\\
+\star\{q_0,q_2\}&&\\
+\star\{q_1, q_2\}&&\\
+\star\{q_0,q_1,q_2\}&&
+\end{array}
+\]
+\end{minipage}
+%\includegraphics[scale=.33]{figures/nfa5.eps}
+\end{slide}
+
+\begin{slide}{Subset construction: transition function}
+
+\begin{center}
+\includegraphics[scale=.33]{figures/nfa3.eps}
+\end{center}
+
+$\delta_D$: For every $S\subseteq Q_N$ and $a\in \sg$, $\delta_D(S,a)=\displaystyle\bigcup_{p\in S}\delta_N(p,a)$
+
+\begin{center}
+\begin{tabular}{ll}
+\includegraphics[scale=.33]{figures/nfa6.eps}&
+\includegraphics[scale=.33]{figures/nfa7.eps}
+\end{tabular}
+\end{center}
+\end{slide}
+
+\begin{slide}{A more direct subset construction}
+\begin{itemize} 
+\item We can avoid generating all possible subsets of states by performing "lazy evaluation" on the subsets.
+\item To convert a NFA $N$ into a DFA $D$ the idea is to construct the transition table for $D$  only for {\bf accessible} states S in $N$, as follows:
+
+\begin{minipage}{6cm}
+\begin{description}
+\item[Basis:] $S=\{q_0\}$ is accessible
+\item[Induction:]  If state $S$ is accessible, then for each input symbol $a$ we compute the  states 
+\[\delta_D(S,a)= \displaystyle\bigcup_{p\in S}\delta_N(p,a)\]
+\end{description}
+\end{minipage}
+\begin{minipage}{4cm}
+{\blue
+Induction, in pseudo code:
+\[
+\begin{array}{l}
+acc := \{\ \};\\
+\mbox{for each } p \in S\\
+\hspace{.5cm} acc := acc \cup \delta_N(p,a);\\
+\delta_D(S,a) = acc
+\end{array}
+\]
+}
+\end{minipage}
+\end{itemize}
+
+\end{slide}
+
+\begin{slide}{\small Subset construction by "lazy evaluation": example}
+\begin{center}
+\includegraphics[scale=.5]{figures/NFAex2.eps}
+\end{center}
+
+Obtaining the DFA for the NFA above using  "lazy evaluation" of states sets.
+
+(on the board)
+%\[
+%\begin{array}{r||l|l}
+%&0 & 1 \\\hline
+%\rightarrow\{q_0\}&\{q_0,q_1\}& \{q_0\}\\
+%\{q_0,q_1\}& \{q_0,q_1\} & \{q_0,q_2\}\\
+%\star\{q_0,q_2\} & \{q_0,q_1\} & \{q_0\}
+%\end{array}
+%\]
+\end{slide}
+
+\begin{slide}{\small A DFA obtained from a NFA recognizes the same language}
+\begin{itemize}
+\item If \(D=(Q_D, \Sigma, \delta_D, \{q_0\}, F_D)\)  is the DFA constructed from NFA \(N=(Q_n,\Sigma, \delta_N, q_0, F_N)\) by subset construction, then $L(D)=L(N)$.
+\end{itemize}
+\begin{center}
+\includegraphics[scale=.33]{figures/nfa8.eps}
+\end{center}
+\end{slide}
+
+\begin{slide}{Proof (cont.)}
+\begin{center}
+\includegraphics[scale=.32]{figures/nfa9.eps}
+\end{center}
+\begin{itemize}
+\item Since both $D$ and $N$ accept $w$ if and only if $\hat{\delta}_D(\{q_0\}, w)$ or $\hat{\delta}_N(q_0, w)$ contain a state in  $F_N$, it follows that $L(D)=L(N)$.
+\end{itemize}
+\end{slide}
+
+\begin{slide}{Automata with spontaneous moves}
+\begin{itemize}
+%\item Another kind of nondeterministic behaviour occurs when an automaton changes state without reading a character, thus performing a spontaneous move.
+\item Such moves are depicted in the state-transition diagram as an arc labelled $\epsilon$
+\item Such arcs are quite handy for assembling automata recognizing a regular composition of finite-state languages.
+\item Moreover, \enfa\ are useful in proving the equivalence between the language accepted by a FA (a machine-like description of a language) and by a {\em regular expression} (an algebraic description of a language)
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}{Example of \enfa}
+An \enfa\ that recognizes an optional + or - sign, a string of digits, a decimal point, and another string of digits.\\\ \\
+\begin{center}
+\includegraphics[scale=.6]{figures/nfa10.eps}
+\end{center}
+%Is {\tt +.} in the language accepted by this automaton?
+\end{slide}
+
+%\begin{slide}{Another example}
+%\begin{center}
+%\includegraphics[scale=.6]{figures/nfa11.eps}
+%\end{center}
+%\end{slide}
+
+\begin{slide}{\enfa\ formally}
+\begin{itemize}
+\item An \enfa\ is a quintuple $(Q, \Sigma, \delta, q_0, F)$, where $\delta$ is a function from $Q\times\Sigma\cup\{\epsilon\}$ to the powerset of $Q$.
+\item Like other automata, an \enfa\ can also be represented by the transition table.
+\end{itemize}
+\begin{center}
+\includegraphics[scale=.4]{figures/nfa12.eps}
+\includegraphics[scale=.4]{figures/nfa10.eps}
+\end{center}
+\end{slide}
+
+\begin{slide}{ECLOSE}
+\begin{itemize}
+\item $ECLOSE(q)$  yields all states  from state $q$ along any path whose arcs are labled with  \egk.
+\item If $A$ is a set of states of an FA, then 
+\(
+ECLOSE(A)=\bigcup_{p\in A}ECLOSE(p)
+\)
+\item Inductive definition of $ECLOSE(q)$, where $q$ is a state:
+\begin{description}
+\item[Basis:] $q \in ECLOSE(q)$
+\item[Induction:] \[\mbox{if }(p\in ECLOSE(q) \mbox{ and } r \in \delta(p,\epsilon)) \mbox{ then }
+r\in ECLOSE(q)\]
+\end{description}
+\end{itemize}
+\begin{center}
+\includegraphics[scale=.3]{figures/enfa1.eps}
+\end{center}
+
+\end{slide}
+
+\begin{slide}{ECLOSE: example}
+\begin{center}
+\includegraphics[scale=.6]{figures/nfa13.eps}
+\end{center}
+\end{slide}
+
+\begin{slide}{Extended transition function for \enfa}
+\begin{description}
+\item[Basis:]
+\(
+\hat\delta(q, \egk)=ECLOSE(q)
+\)
+\item[Induction:]
+\[
+\hat\delta(q, xa) = ECLOSE(\bigcup_{p\in\hat\delta(q, x)}\delta(p, a))
+\]
+\item[\blue Induction,] in pseudo code: Let $\hat\delta(q, x)=\{p_1,p_2,\cdots,p_k\}$
+\[
+\begin{array}{l}
+r:= \{\ \};\\
+\mbox{for each } p_i\in \{p_1,p_2,\cdots,p_k\} \\
+\hspace{1cm}r := r \cup \delta(p_i, a)\\
+\hat\delta(p, xa)= ECLOSE(r);
+\end{array}
+\]
+\end{description}
+%\begin{center}
+%\includegraphics[scale=.6]{figures/nfa14.eps}
+%\end{center}
+\end{slide}
+
+\begin{slide}{Example}
+Let's compute  $\hat{\delta}(q_0,.5)$ for the DFA below
+\begin{center}
+\includegraphics[scale=.6]{figures/nfa10.eps}
+\end{center}
+\end{slide}
+
+\begin{slide}{Equivalent DFA for an \enfa}
+\begin{itemize}
+\item To convert an \egk-NFA $E=(Q_E,\Sigma, \delta_E, q_0, F_E)$ into a DFA $D=(Q_D, \Sigma, \delta_D, q_D, F)$ the construction we use is similar to the subset construction.
+\item The difference is that we must incorporate the \egk-transitions via the \egk-closure.
+\item We construct the transition table for $D$  as follows:
+\begin{description}
+\item[Basis:] $q_D=ECLOSE(q_0)$ is accessible in $D$
+\item[Induction:]  If state $S$ is accessible, then for each input symbol $a$ we compute the  states $\delta_D(S,a)= \displaystyle ECLOSE(\bigcup_{p\in S}\delta_E(p,a))$
+\end{description}
+\item $F_D = \{S : S \in Q_D$ and $S\cap F_E\neq \emptyset\}$
+\end{itemize}
+\end{slide}
+
+\begin{slide}{Equivalent DFA for an \enfa}
+\begin{center}
+\includegraphics[scale=.4]{figures/nfa16.eps}
+\end{center}
+\end{slide}
+
+\begin{slide}{Regular Expressions}
+\begin{itemize}
+\item A FA (DFA, NFA, or \enfa) provides a ``procedural'' description for a machine that recognizes a regular language.
+\item A regular expression provides a ``declarative'' description for a regular language.
+\item E.g.: The set of all binary strings that end with a 0.
+\[
+\begin{array}{cc}
+\includegraphics[scale=.25]{figures/w03-s01.eps}
+&
+(0+1)^*0
+\end{array}
+\]
+\item Now, instead of focusing on how regular languages are computed, we focus on the problem of describing finite or repeating patterns.
+\end{itemize}
+\end{slide}
+
+\begin{slide}{Where can we find applications for this?}
+
+Since REs provide a declarative way to express strings we want to accept, it can serve as input to systems that process strings. For example:
+\begin{itemize}
+\item The first step of compiling a program.
+\item Filtering email for spam.
+\item Sorting email into appropriate mailbox based on keywords
+\item Searching a complex directory structure by specifying patterns (e.g., UNIX-like {\tt grep} command).
+\end{itemize}
+\end{slide}
+
+\begin{slide}{Operations on regular languages}
+Before describing the notation for RE, let's learn the operations on languages that the operators of RE represent.
+
+Let $L$ and $M$ be languages, e.g., $L=\{01, 11\}$, $M=\{00, 10, 11\}$. 
+\begin{itemize}
+\item {\blue Union}: $L\cup M=\{w:w\in L \mbox{ or }w \in M\}$%, e.g., $\{00,10\}\subset L\cup M$
+\item {\blue Concatenation}: $L.M\mbox{ or just\ } LM=\{w:w=xy, x\in L,y \in M\}$
+\item {\blue Power}: $L^0=\{\epsilon\}, L^1=L, L^{k+1}=L.L^k$
+\item {\blue Kleene Closure}: $L^*=\displaystyle\bigcup_{i=0}^\infty L^i$
+\end{itemize}
+Note: $\emptyset^*=\{\epsilon\}$. Rationale: $\emptyset^0=\{\epsilon\}$ and $ \emptyset^i$ for $i\geq1$ is empty. 
+\quiz{w3.1-3}
+
+
+%
+\end{slide}
+\begin{slide}{REs and the languages they define}
+Inductive definition of REs and the languages they define.
+\begin{itemize}
+\item {\bf Basis:} \ \\
+\begin{itemize}
+\item $\epsilon$ and $\emptyset$ are REs. $L(\epsilon)=\{\epsilon\},  L(\emptyset)=\emptyset$
+
+\item If $a\in\Sigma$, then $a$ is a RE. $L(a)=\{a\}$
+\end{itemize}
+\item {\bf Induction:} \ \\
+\begin{itemize}
+\item If $E$ is a RE, then $(E)$ is a RE. $L((E))=L(E)$
+
+\item If $E$ and $F$ are REs, then $E + F$ is a RE. $L(E + F ) = L(E) \cup L(F )$.
+
+\item If $E$ and $F$ are REs, then $E.F$ is a RE. $L(E.F ) = L(E).L(F )$. 
+
+\item If $E$ is a RE, then $E^*$ is a RE. $L(E^*)=(L(E))^*$. 
+\end{itemize}
+\end{itemize}
+\end{slide}
+
+\begin{slide}{RE: examples}
+\begin{itemize}
+\item $L(01) = \{01\}$
+\item $L(01+0) = \{01, 0\}$
+\item $L(0(1+0)) = \{01, 00\}$. Note order of precedence of operators:
+\item $L(0^*) = \{\epsilon, 0, 00, 000,\cdots \}$. 
+\item $L((0+10)^*)$ = all binary strings without consecutive 1s that end in 0. 
+\item $L((0+10)^{*}(\epsilon+1)) = $ all binary strings without two consecutive 1s.
+\end{itemize}
+\begin{itemize}
+\item Order of precedence of operators: $*>.>+$
+\item Example: $01^*+ 1$ is grouped $(0(1)^*) + 1$
+\end{itemize}
+\end{slide}
+
+\begin{comment}
+\begin{slide}{RE: examples}
+\begin{center}
+\includegraphics[scale=.6]{figures/re2.eps}
+\end{center}
+\begin{itemize}
+\item Order of precedence of operators: $*>.>+$
+\item Example: $01^*+ 1$ is grouped $(0(1)^*) + 1$
+\end{itemize}
+\end{slide}
+
+\begin{slide}{More Examples}
+Here are some languages and their respective REs:
+\begin{itemize}
+\item The set of strings over alphabet $\{a,b\}$ containing at least one $a$ and at least one $b$
+\[ (a+b)^*a(a+b)^*b(a+b)^*+(a+b)^*b(a+b)^*a(a+b)^*
+\]
+\item The set of strings over the alphabet $\{0,1\}$ whose third symbol from the right end is 1
+\[
+(0+1)^*1(0+1)(0+1)(0+1)
+\]
+\end{itemize}
+\end{slide}
+\end{comment}
+
+\begin{slide}{Exercise}
+Provide a regular expression that defines the language of the  DFA below:
+\begin{center}
+\includegraphics[scale=.6]{figures/nfa10.eps}
+\end{center}
+\end{slide}
+
+
+\end{document}
