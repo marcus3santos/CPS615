@@ -1,0 +1,613 @@
+\documentclass{prosper}%[pdf,azure,slideColor,colorBG]{prosper}
+\hypersetup{pdfpagemode=FullScreen}
+
+\usepackage{graphicx}
+\usepackage{graphics}
+\usepackage{rotating}
+\usepackage{amsmath}
+\usepackage{epsfig}
+\usepackage{verbatim}
+
+\newcommand{\enfa}{{$\epsilon$-NFA}}
+\newcommand{\e} {{\mbox{$\epsilon$}}}
+\newcommand{\ra}{\mbox{$\;\rightarrow\;$}}
+\newcommand{\vb}{\mbox{$\;|\:$}}
+\newcommand{\dra}{\mbox{$\;\Rightarrow\;$}}
+\newcommand{\cvd}{\mbox{$\;\overset{*}{\vdash}\;$}}
+\newcommand{\cavd}[1]{{\mbox{$\;\overset{_*}{\underset{_#1}{\vdash}}\;$}}}
+\newcommand{\avd}[1]{\mbox{$\;{\underset{_#1}{\vdash}\;}$}}
+\newcommand{\lmd}{\mbox{$\;\underset{lm}{\Rightarrow}\;$}}
+\newcommand{\rmd}{\mbox{$\;\underset{rm}{\Rightarrow}\;$}}\newcommand{\pda}[1]{$#1 = (Q, \Sigma, \Gamma, \delta, q_0, Z_0, F)$}
+\newcommand{\qed}{{$\;\;\Box$}}
+
+\newcommand{\quiz}[1]{{\hfill \tiny{$_{ #1}$}}}
+
+
+%\title{Pushdown Automata}
+%\author{Marcus V. dos Santos}
+%\institution{        Department of Computer Science \\        Ryerson University}
+
+% Optional: text to put in the bottom of each slide.
+% By default, the title of the talk will be placed there.
+\slideCaption{\textit{Marcus Santos, RU}}
+
+\begin{document}
+
+\begin{slide}{Procedural descriptors for CFLs}
+\begin{itemize}
+\item In our study of regular languages  we saw that  we can describe such languages ``procedurally'' using a finite automaton (DFA, NFA, e-NFA), or ``declaratively'' using a regular expression.
+\item In our study of context free languages, we first learned how we can use CFGs to ``declaratively'' describe those languages.
+\item Today we will learn how we can specify machines called {\blue Pushdown Automata} that describe CFLs ``procedurally''.
+\end{itemize}
+\end{slide}
+
+%\maketitle
+\begin{slide}{Pushdown Automata}
+%\begin{center}
+%\includegraphics[scale=.3]{figures/pda1.eps}
+%\end{center}
+\begin{itemize}
+\item A pushdown automata (PDA) is essentially an \e-NFA with a stack on which it can store symbols.
+\item PDA can only access information on the stack in a last-in-first out way. 
+\item There are two versions of  a PDA, and they differ on how a PDA accepts a string, i.e.,
+\begin{itemize}
+\item acceptance by accepting state, or 
+\item acceptance by empty stack.%\item Real computers, 
+\end{itemize}
+\end{itemize}
+\end{slide}
+
+\begin{slide}{PDA informally}
+\begin{center}
+\includegraphics[scale=.4]{figures/pda1.eps}
+\end{center}
+\begin{itemize}
+\item The finite control reads one symbol at a time from the input, and observes the symbol on top of the stack.
+\item It bases its transitions on {\blue its state}, {\blue the input symbol}, and {\blue the symbol on top of the stack}.
+\item On a transition, the PDA:
+%\begin{minipage}{6cm}
+\begin{enumerate}
+\item Consumes an input symbol. 
+\item Goes to a new state (or stays in the old). 
+\item Replaces the top of the stack by a string
+\end{enumerate}
+\end{itemize}
+\end{slide}
+
+\begin{slide}{An informal example}
+\begin{itemize}
+\item Consider the grammar $P\ra aPb\vb \e$, and its language \[
+L=\{a^nb^n:n\geq 0\}\] 
+
+\item Suppose you are a simple machine whose only memory is a stack.
+
+\item How would you recognize strings in this language?
+\end{itemize}
+
+\end{slide}
+
+\begin{slide}
+{An informal example}
+Consider the grammar $P\ra aPb\vb \e$, and its language \[
+L=\{a^nb^n:n\geq 0\}\] 
+A PDA for $L$ has 3 states and operates as follows:
+\begin{enumerate}
+\item Keeps reading $a$s and pushing them onto the stack until it finds a $b$, which makes it pop an $a$ from the stack and transition to the next state.
+\item Keeps reading $b$s and popping as many $a$s; if the ``start symbol''  is on top of the stack, then accepts.
+\end{enumerate}
+\end{slide}
+
+\begin{slide}{PDA, formally}
+A PDA is a 7-tuple $P=(Q, \Sigma, \Gamma, \delta, q_0, Z_0, F)$, where:
+\begin{itemize}
+\item $Q, \Sigma, q_0,$ and $F$, are our old friends;
+\item $\Gamma$ is the stack alphabet;
+\item $Z_0$ is the start symbol;
+\item $\delta$ is the transition function %$\delta: Q\times\Sigma\times\Gamma \longrightarrow {\cal P}(Q\times \Gamma)$, e.g., 
+$\delta(q, a, X)=\{(p,\gamma),\cdots\}$, where:
+\begin{itemize}
+\item $q$ is  a state, $a$ is an input symbol, $X$ is a stack symbol
+\item $p$ is a state, and $\gamma$ is the string of stack symbols that {\blue replaces $X$} on top of the stack. E.g.:
+\[
+\begin{array}{l}
+\delta(q, a ,X) =\{(p,\epsilon)\} \mbox{ Stack is popped.}\\
+\delta(q, a, X)=\{(p, X)\} \mbox{ Stack is unchanged.}\\
+\delta(q, a, X)=\{(p, YZ)\} \mbox{ $X$ replaced by $Z$; $Y$ pushed.}\\
+\end{array}
+\]
+\end{itemize}
+\end{itemize}
+\end{slide}
+
+\begin{slide}{A Graphical notation for PDAs}
+In the notation used in our textbook, a transition diagram for a  PDA consists of the following elements:
+\begin{itemize}
+\item Like in finite automata, nodes represent states, and the start state and accept states are denoted as usual.
+\item Arcs correspond to transitions of the PDA as follows:
+\begin{center}
+ \includegraphics[scale=.5]{figures/pdatrans.eps} means $(p, \alpha)  \in \delta(q, a, X)$
+ \end{center}
+\item Conventionally, $Z_0$ or $Z$ denote the start symbol for the stack.
+\end{itemize}
+Let's obtain a PDA for the language $\{a^nb^n, n\geq 0\}$ using JFLAP.
+\end{slide}
+
+
+\begin{slide}{A Nondeterministic PDA}
+Consider the grammar $P\ra 0P0\vb1P1\vb \e$, and its language \[
+L=\{ww^R:w\in\{0,1,\}^*\}\] 
+
+A PDA for $L$ has three states and operates as follows:
+\begin{enumerate}
+\item Guesses that it is reading $w$. Stays in state $q_0$, and pushes the input symbol onto the stack. 
+\item  Guesses that it is in the middle of $ww^R$, {\em i.e.}, $w$ would be on the stack. Goes spontaneously to state $q_1$. 
+\item It is  now reading the head of $w^R$. Compares it to the top of the stack. If they match, pops the stack, and remains in state $q_1$. 
+If they don't match, goes to sleep. 
+\item If the stack is empty, goes to state $q_2$ and accepts. 
+\end{enumerate}
+\end{slide}
+
+
+
+\begin{slide}{PDA for $L=\{ww^R:w\in\{0,1,\}^*\}$}
+\begin{center}
+\includegraphics[scale=.2]{figures/pda2.eps}
+\end{center}
+
+\[
+P=(\{q_0, q_1, q_2\}, \{0,1\}, \{0, 1, Z_0\}, \delta, q_0, Z_0, \{q_2\}).
+\] where $\delta$ is given by the table below
+\begin{center}
+\includegraphics[scale=.4]{figures/pda3.eps}
+\end{center}
+We assume the PDA accepts a string by consuming it and entering an accepting state.
+\end{slide}
+
+\begin{slide}{PDA: exercise}
+Design a PDA that recognizes the language
+\[
+\{a^ib^jc^k:i,j,k\geq 1\mbox{ and }i=j\mbox{ or }i=k\}
+\]
+Provide a CFG for the language.
+\end{slide}
+
+\begin{slide}{PDA: exercise}
+Design a PDA that recognizes the language
+\[
+\{w: w\; \mbox{contains as many 1s as 0s}\}
+\]
+Provide a CFG for the language.
+\end{slide}
+
+\begin{slide}{PDA: exercise}
+Design a PDA that recognizes the language
+\[
+\{w: w\; \mbox{contains more 1s than 0s}\}
+\]
+Provide a CFG for the language.
+\end{slide}
+
+
+\begin{slide}{Instantaneous Descriptions (IDs)}
+\begin{itemize}
+\item $(q, w, \gamma)$ is an {\blue Instantaneous Description}  of a PDA  configuration.
+\begin{itemize}
+\item $q$ is the current state
+\item $w$ is the remaining input
+\item $\gamma$ is the contents the stack
+\end{itemize}
+\item Using IDs to represent a {\blue computation step by a PDA}: suppose $(p, \alpha)  \in \delta(q, a, X)$, i.e., \includegraphics[scale=.5]{figures/pdatrans.eps} then for all strings $w$, \[(q, aw, X\beta)\vdash (p, w, \alpha \beta)\]
+
+%\[\mbox{Suppose }(p, \alpha)  \in \delta(q, a, X)\mbox{, then for } (q, aw, X\beta)\vdash (p, w, \alpha \beta)\] 
+\item \cvd is the  closure of $\vdash$, meaning ``zero or more computation steps (moves) of the PDA''.
+
+\end{itemize}
+\end{slide}
+
+\begin{slide}{Computation as a sequence of IDs}
+Example: Starting from the ID $(q, 010, Z)$, show all the reachable ID's for the PDA below.
+\begin{center}
+\includegraphics[scale=.7]{figures/pda2new.eps}
+\end{center}
+\end{slide}
+
+\begin{comment}
+\begin{slide}{Some properties of PDA}\label{sl:prop}
+\begin{itemize}
+\item If an ID sequence is a legal computation for a PDA, then so is the sequence obtained by adding an additional string to the second and/or third component. Formally: $\forall w \in\Sigma^*, \beta \in\Gamma^*$ :
+\[
+\mbox{if }(q, x, \mbox{\red \underline{$\alpha$}})\cvd(p, y, \mbox{\red \underline{$\beta$}}) \mbox{, then }(q, xw, \mbox{\red \underline{$\alpha\gamma$}} )\cvd(p, yw, \mbox{\red\underline{ $\beta\gamma$}})
+\]
+\item  If an ID sequence is a legal computation 
+for a PDA, and some tail of the input is 
+not consumed, then removing this tail from 
+all ID's result in a legal computation sequence. 
+\[
+\mbox{if }(q, {\red\underline{ xw}}, \alpha)\cvd(p, {\red\underline{ yw}}, \beta)  \mbox{, then }(q, {\red \underline{x}}, \alpha )\cvd(p, {\red \underline{y}}, \beta)
+\]
+\end{itemize}
+\end{slide}
+\end{comment}
+
+
+
+\begin{slide}{The languages of a PDA}
+\begin{itemize}
+\item For a DFA $D$, we saw that $L(D)=\{w: \hat{\delta}(q_0, w)\in F\}$, where $F$ is the set of accepting states.
+\item For PDAs, there are two {\blue equivalent} approaches to define the languages they accept:
+\begin{itemize}
+\item Acceptance by final state
+\item Acceptance by empty stack
+\end{itemize}
+%\item Notice, however, that for a given PDA $P$, the languages that $P$ accepts by final state and by empty stack are usually different.
+\end{itemize}
+\end{slide}
+ 
+ \begin{slide}{Acceptance by final state}
+\begin{itemize}
+\item  Let \pda{P}\ be a PDA. 
+\item The language accepted by $P$ by {\blue final state} is
+ \[
+ L_{f}(P ) = \{w : (q_0, w, Z_0)\cvd(q,{\red \e},\alpha), {\red q \in F} \}.
+\]
+Notice:
+\begin{itemize}
+\item $P$ consumes $w$ completely.
+\item $P$ halts in an accepting state.
+\item The stack might not be emptied.
+\end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}{Acceptance by empty stack}
+\begin{itemize}
+\item Let \pda{P} be a PDA.
+\item The language accepted by $P$ by {\blue empty stack} is
+\[
+L_{e}(P)=\{w:(q_0,w,Z_0)\cvd (q, {\red \e}, {\red \e})\}
+\]
+Notice:
+\begin{itemize}
+\item  $q$ can be any state
+\item $P$ at the same time consumes $w$ and empties the stack
+\item $F$ is redundant in the definition of the PDA and is usually left off in the representation.
+\end{itemize}
+\end{itemize}
+\end{slide}
+
+\begin{slide}{From Empty Stack to Final State}
+{\bf Theorem}: If $P_N=(Q, \Sigma, \Gamma, \delta, q_0, Z_0)$ accepts by empty stack, then $\exists$ PDA $P_F$ that accepts by final state such that $L_e(P_N)=L_f(P_F)$ .
+\begin{itemize}
+\item The idea behind the proof of this theorem is to build a PDA $P_F$ that simulates $P_N$ and accepts if $P_N$ empties the stack.
+\end{itemize}
+\begin{minipage}{5cm}
+\includegraphics[scale=.3]{figures/pda5.eps}
+\end{minipage}
+\begin{minipage}{6cm}
+\begin{itemize}
+\item $\delta_F(p_0,\epsilon,X_0)=\{(q_0, Z_0X_0)\}$
+\item Keep all state transitions of $P_N$.
+\item Add transitions $\delta_F(q, \epsilon, X_0)=\{(p_f, \epsilon)\}$ for every state $q\in Q$
+\end{itemize}
+\end{minipage}
+\[
+(p_0,w,X_0)\avd{{P_F}}(q_0,w,Z_0X_0)\cavd{{P_N}}(q,\e,X_0)\avd{{P_F}}(p_f,\e,\e)
+\]
+\end{slide}
+
+
+\begin{slide}{From Final State to Empty Stack}
+{\bf Theorem}: If \pda{P_F} accepts by final state, then $\exists$ PDA $P_N$ that accepts by empty stack such that $L_f(P_F)=L_e(P_N)$.
+\begin{itemize}
+\item The idea behind the proof of this theorem is to build a PDA $P_N$ that simulates $P_F$ and accepts if $P_F$ accepts by final state.
+\end{itemize}
+\begin{minipage}{5cm}
+\includegraphics[scale=.3]{figures/pda8.eps}
+\end{minipage}
+\begin{minipage}{6cm}
+\begin{itemize}
+\item $\delta_N(p_0,\epsilon,X_0)=\{(q_0, Z_0X_0)\}$
+\item Keep all state transitions of $P_F$.
+\item Add transitions $\delta_N(q, \epsilon, X)=\{(p_f, \epsilon)\}$ for every state $q\in F$ and symbol $X\in\Gamma\cup\{X_0\}$.
+\end{itemize}
+\end{minipage}
+\end{slide}
+
+\begin{comment}
+\begin{slide}{PDA conversion: example}
+Consider the PDA $P$ below and its language $L_f(P)$. Convert $P$ to another PDA $P_1$ that accepts by empty stack such that $L_f(P)=L_e(P_1)$
+\begin{center}
+\includegraphics[scale=.7]{figures/pda2new.eps}
+\end{center}
+\end{slide}
+\end{comment}
+
+\begin{slide}{Equivalence of PDAs and CFGs}
+\begin{itemize}
+\item We shall see that PDAs and CFGs are equivalent in power: both represent the same class of languages.
+\item We will do that by showing how to obtain a PDA from a CFG, and vice-versa.
+\item Our objective is to prove the following theorem:
+{\em \begin{quote}
+A language is context-free {\large\blue iff} some PDA recognizes it.
+\end{quote}}
+Therefore, two lemmas:
+\begin{itemize}
+\item[{\blue\bf L1}:] If a language is context-free, then some PDA recognizes it.
+\item[{\blue\bf L2}:] If a PDA recognizes some language, then it is context-free.
+\end{itemize}
+\end{itemize}
+\end{slide}
+
+\begin{slide}{Proving L1}
+\begin{itemize}
+\item Proof idea: show how to convert a CFG $G$ to a PDA $P$.
+\item We will design $P$ to simulate leftmost derivations of strings according to $G$.
+\item The stack will contain the strings of the derivations.
+\end{itemize}
+The derivation of a string, according to a given grammar, gives us a hint on the operation of the PDA.
+\[
+\begin{array}{l}
+A\ra aAb \vb \e\\
+A\dra aAb\dra aaAbb \dra aaaAbbb \dra aaabbb
+\end{array}
+\]
+%Now, let's see on the board how a PDA would accept this string by empty stack. And as we do it, we shall design the PDA.
+\end{slide}
+
+\begin{comment}
+\item The PDA's nondeterminism will come in handy, as it allows it to guess the sequence of correct substitutions.
+\item $P$'s design sketch: $P$ will push on the stack left-sentential forms of $G$; and it will go through these sentential forms, making one substitution after another. Eventually it {\blue may} arrive at a configuration (a string) that contains only terminals. Then $P$ accepts if this string matches $w$.
+\end{itemize}
+\end{slide}
+\end{comment}
+
+\begin{slide}{Proof idea of L1 (cnt.)}
+This is how a PDA would accept a string based on the grammar rules:
+\begin{itemize}
+\item Place the start variable on the stack.
+\item Repeat the following steps forever:
+\begin{enumerate}
+\item[a)] If the top of the stack is a variable $A$, nondeterministically select a rule $A \ra \gamma$ and substitute $A$ on the stack by $\gamma$.
+\item[b)] If the top of the stack is a terminal symbol $a$, read the next symbol from the input and compare it to $a$. If they match, pop the stack, repeat (b). If they don't match, reject this branch of the nondeterminism.
+\item[c)] If the top of the stack is the start symbol, pop it without reading a symbol from input.
+%\item[c)] If the top of the stack is P's start symbol, enter the accept state. Doing so accepts the input if it has all been read.
+\end{enumerate}
+\end{itemize}
+\end{slide}
+
+\begin{slide}{Example: $A\ra aAb | \epsilon$}
+\begin{center}
+\includegraphics[scale=.6]{figures/cfg-PDA.eps}
+\end{center}
+\end{slide}
+
+\begin{slide}{Proof idea of L2}
+
+\begin{itemize}
+\item Our task: given a PDA $P$,  design a CFG that generates the strings that $P$ accepts.
+\item Fundamental event in a PDA's history: the popping of a symbol from the stack while consuming input. 
+\item We design a grammar that will have variables named {\blue\bf $A_{pXq}$} that generate all strings $w$ such that $(p, w, X\alpha) \cvd (q, \e, \alpha), \forall p, q, X$.
+\item But to facilitate this task, we must make sure $P$  has the following features:
+\begin{itemize}
+\item It accepts by empty stack.
+\item Each transition either pushes a symbol onto the stack or pops one off the stack, but not both at the same time.
+\end{itemize}
+\end{itemize}
+\end{slide}
+
+%\begin{slide}{On how $P$ computes $x$}
+%First and last moves of $P$ computing $x$:
+%\item (stack is empty) First move is a {\em push}
+%\item Last move is a {\em pop} (stack becomes empty)
+%\end{itemize}
+%Therefore, considering that the stack is empty at the beginning of $P$'s computation of $x$, there are two possibilities:
+%\begin{itemize}
+%\item stack is empty {\em only at the end} of the computation of $x$
+%\[
+%A_{pq}\ra a A_{rs} b
+%\]
+%\item  stack is empty {\em before the end} of $P$'s computation of $x$
+%\[
+%A_{pq} \ra A_{pr}A_{rq}
+%\]
+%\end{itemize}
+%\end{slide}
+
+\begin{slide}{Describing $G$'s rules.}
+Given $P=(Q, \Sigma, \Gamma, \delta, q_0, Z_0)$, let's construct $G=(V, \Sigma, R, S)$:
+\begin{enumerate}
+\item $V$ consists of the start symbol $S$ and all symbols $A_{pXq}$, where  $p,q\in Q$  and $X\in\Gamma$.
+\item The production rules in $R$ are:
+\begin{enumerate}
+\item For all states $p$, $G$ has the production $S\ra A_{q_0Z_0p}$. Therefore, these productions say: $S$ will generate all strings $w$ that cause $P$ to empty its stack.
+\item Let $\delta(q, a, X)=\{(r, Y_1Y_2\cdots Y_k),\cdots\}$, where $a$ is either a symbol of $\Sigma$ or \e, and $k\geq 0$.
+\begin{itemize}
+\item  if $k= 0$, i.e.,  $\delta(q,a,X)=\{(r,\e),\cdots\}$, then $A_{qXr}\ra \epsilon$.
+\item if $k>0$, then for all lists of states $r_1r_2\cdots r_k$, $G$ has the production $A_{qX\underline{r_k}}\ra a \underbrace{A_{rY_1\underline{r_1}}}_{\mbox{pops $Y_1$}}\underbrace{A_{\underline{r_1}Y_2\underline{r_2}}}_{\mbox{pops $Y_2$}}\cdots \underbrace{A_{\underline{r_{k-1}}Y_k\underline{r_k}}}_{\mbox{pops $Y_k$}}$
+\end{itemize}
+\end{enumerate}
+\end{enumerate}
+\end{slide}
+
+%\begin{slide}{Proving that $G$ does generate $x$}
+%We need to prove that $A_{qXp}$ generates $w$ {\bf iff} $(q, w, X)\cvd (p,\e, \e)$\\\ \\
+%{\bf Claim 1:} If $A_{qXp}$ generates $w$, then $(q, w, X)\cvd (p,\e, \e)$\\\ \\
+%Proof by induction on the number of steps in the derivation of $w$ from $A_{qXp}$
+%\begin{itemize}
+%\item {\bf Basis:} One step. $G$ has to include the rule $A_{qXp}\ra w$. And this production does existwhich makes $P $p$ move to $q$, pop $X$ and accept $w$ on empty stack. Since that is $G$ includes $A_{pp}\ra \e$, clearly the input \e\ takes $P$ from $p$ with empty stack to $q$ with empty   stack.\qed
+%\end{itemize}
+%\end{slide}
+
+%\begin{slide}{Proof (cont.)}
+%Proving: If $A_{pq}$ generates $x$, then $x$ can bring $P$ from $p$ with empty stack  to $q$ with empty stack.
+
+% {\bf induction:} Assume true for derivations with $k$ derivations, prove true to $k+1$.
+
+%Suppose $A_{pq}\overset{*}{\Rightarrow} x$ with $k+1$ derivations. The first step an either be $A_{pq} \dra aA_{rs}b$ or $A_{pq} \dra A_{pr}A_{rq}$
+%\begin{itemize}
+%\item $A_{pq} \dra aA_{rs}b$: consider $x=ayb$. Notice that $A_{rs}\overset{*}{\dra} y$ in $k$ steps and $G$ includes $A_{pq}\ra aA_{rs}b$. Also  $\delta(p, a, \e)$ contains $(r,t)$, and $\delta(s, b, t)$ contains $(q,\e)$. Therefore, by IH and inspection of of $P$, it is clear that $x$ can bring $P$ from $p$ with empty stack to $q$ with empty stack. \qed 
+%\item $A_{pq} \dra A_{pr}A_{rq}$: consider $x=yz$. Notice that $A_{pr}\overset{*}{\dra}y$ and $A_{rq}\overset{*}{\dra}z$ has at most $k$ steps. Therefore, proven by IH and inspection of $P$. \qed
+%\end{itemize}
+%\end{slide}
+
+
+%\begin{slide}{Proving the other claim}
+%{\bf Claim 2:} If $x$ can bring $p$ with empty stack to $q$ with empty stack, $A_{pq}$ generates $x$.
+%\begin{itemize}
+%\item Proof by induction on the number of steps in the computation of $P$.
+%\end{itemize}
+%The above proof shows that PDAs recognize the class of context-free languages.
+
+% It also allows us to establish a relationship between regular languages and context free languages
+
+% Because every regular language  (RL) is recognized by a FA and every FA is also a PDA, we now know that every RL is also a CFL.
+
+%\end{slide}
+
+\begin{slide}{Example}
+Obtain a CFG for the following PDA:
+\begin{center}
+\includegraphics[scale=.6]{figures/pda6.eps}
+\end{center}
+\end{slide}
+
+\begin{slide}{Deterministic PDA}
+\begin{itemize}
+\item Recall that DFAs and NFAs are equivalent in language recognition power.
+\item The same does not happen with PDAs.
+\item NPDAs are more powerful then DPDAs.
+\item DPDAs accept a class of languages that is between RLs and CFLs.
+\item Let's  start by defining what is a DPDA. Then show that DPDA languages include all RLs.
+\end{itemize}
+\begin{center}
+\includegraphics[scale=.4]{figures/pda9.eps}
+\end{center}
+\end{slide}
+
+\begin{slide}{Deterministic PDA (DPDA)}
+A PDA \pda{P} is deterministic {\blue iff}:
+\begin{itemize}
+\item $\delta (q,a,X)$ is always empty or a singleton.
+\item If $\delta(q, a, X)$ is nonempty, then $\delta(q, \e, X)$ must
+be empty. 
+\end{itemize}
+But before analyzing a DPDA, let's see the source of nondeterminism in the PDA for $\{ww^R: w\in \{0,1\}^*\}$
+\begin{center}
+\includegraphics[scale=.35]{figures/pda2.eps}
+\end{center}
+\end{slide}
+
+\begin{slide}{Example of a DPDA}
+Let us define the following language
+\(
+L_{wcwr} = \{wcw^R : w \in \{0, 1\}^*\}
+\)
+
+Then $L_{wcwr}$ is recognized by the following DPDA
+\begin{center}
+\includegraphics[scale=.3]{figures/dpda1.eps}
+\end{center}
+Unlike in the previous example, all move choices for this PDA are {\blue deterministic}.
+\quiz{pda.1}
+\end{slide}
+
+\begin{comment}
+\begin{slide}{RLs and deterministic PDA}%$L(DPDA)$: the language of DPDA}
+L(DPDA) includes all RLs.
+\begin{description}
+\item[Theorem:] If $R$ is regular, then $R = L(P )$ for some DPDA $P$.
+\item[Proof:] Since R is regular there is a DFA $A$ such that
+$R = L(A)$. Let 
+\[
+A = ({\blue Q},{\blue \Sigma},\delta_A,{\blue q_0},{\blue F})
+\]
+ We define the DPDA
+ \[
+P = ({\blue Q},{\blue \Sigma},\{Z_0\},\delta_P,{\blue q_0},Z_0,{\blue F}),
+\]
+where $\delta_P (q, a, Z_0) = \{(\delta_A(q, a), Z_0)\}$,  for all $p,q\in Q$, and $a\in\Sigma$.
+
+With a simple induction on $|w|$ one can show
+\[(q ,w,Z )\cavd{P }(p,\e,Z )\mbox{\bf\blue\ iff\ }\hat{\delta_A}(q ,w)=p
+\]
+\end{description}
+\end{slide}
+
+\begin{slide}{$L(DPDA)$: the language of DPDA (cnt.)}
+\begin{itemize}
+\item We have seen that $RL\subseteq  L(DPDA)$
+\item Also, it is easy to see that  $L_{wcw^R}\in L(DPDA)-RL$. Hint: we use the PL to show that $L_{wcw^R}$ is not regular.
+\item There are CFL that are not in L(DPDA), e.g., $L_{ww^R}$.
+\item The proof that $L_{ww^R} \not\in L(DPDA)$ is complex, but its intuition is transparent.
+\begin{itemize}
+\item Suppose $P$ is a DPDA that accepts $L_{ww^R}$ and $w=0^n110^n0^n110^n$.
+\item To recognize $w$, $P$ would have to use the stack to count the 0's, emptying its stack to recognize the second sequence of 0's.
+\item if  it sees next an identical string, it must accept.
+\item However, since its stack is empty, it cannot remember what $n$ was.
+\end{itemize}
+\end{itemize}
+\end{slide}
+\end{comment}
+
+\begin{slide}{Exercise}
+Provide a DPDA for the following languages:
+\[
+L=\{0^n1^m: n\leq m\}
+\]
+\[
+L=\{0^n1^m:n\geq m\}
+\]
+\end{slide}
+
+\end{document}
+
+begin{comment}
+\begin{slide}{Proving $x\in L(P) \Leftarrow x=ww^R$}
+\begin{center}
+\includegraphics[scale=.4]{figures/pda2.eps}
+\end{center}
+\begin{itemize}
+\item We assume $x=ww^R$. Then, we can see (by inspecting the PDA) that the following is a legal computation sequence.
+\[
+\begin{array}{l}
+(q_0, ww^R, Z_0) \cvd(q_0, w^R, w^RZ_0)\vdash(q_1, w^R, w^RZ_0)\cvd\\(q1,\e, Z_0)\vdash(q_2,\e, Z_0)
+\end{array}
+\]
+\end{itemize}
+\end{slide}
+ 
+\begin{slide}{Proving $x\in L(P) \dra x=ww^R$}
+\begin{center}
+\includegraphics[scale=.4]{figures/pda2.eps}
+\end{center}
+\begin{itemize}
+\item Observe that the only way the PDA can enter 
+$q_2$ is if it is in state $q_1$ with an empty stack. 
+\item Then, we'll show by induction in $|x|$ that 
+\[
+(q_0, x, \alpha)\cvd(q_1,\e, \alpha) \dra x = ww^R
+\]
+{\bf Basis:} If $x=\e$ then $x$ is a palindrome. \qed
+ \end{itemize}
+ \end{slide}
+ 
+\begin{slide}{Proving {\small $(q_0, x, \alpha)\cvd(q_1,\e, \alpha) \dra x = ww^R$}}
+
+{\bf Induction:} Suppose $x = a_1a_2\cdots a_n$, $n > 0$, and the IH holds for shorter strings. There are two moves for the PDA from the ID $(q_0,x, \alpha)$
+\begin{itemize}
+\item The spontaneous $(q_0, x, \alpha)\vdash(q_1, x, \alpha)$.  Now $(q1, x, \alpha)\cvd(q_1,\e, \beta)$ implies that $\beta< \alpha$, which implies $\beta\neq \alpha$. 
+\item Loop and push. A computation ending in $(q_1, \e, \alpha)$ would look like this:
+\(
+(q_0, a_1a_2\cdots a_n, \alpha)\vdash(q_0, a_2\cdots a_n, a_1\alpha)\vdash\cdots\vdash
+(q_1, a_n, a_1\alpha)\vdash(q_1,\e, \alpha)
+\). 
+
+Thus, $a_1=a_n$ and $(q_0, a_2 \cdots a_n, a_1\alpha)\cvd(q_1, a_n, a_1\alpha)$.
+
+From theorem in Slide \ref{sl:prop}, we can remove $a_n$. Therefore, $(q_0, a_2\cdots a_{n-1}, a_1\alpha)\cvd(q_1, \e, a_1\alpha)$.
+Then, by IH $a_2\cdots a_{n-1}=yy^R$. Then $x=a_1yy^Ra_n$ is a palindrome.\qed
+\end{itemize}
+\end{slide}
+\end{comment}
+
