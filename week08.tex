@@ -196,10 +196,10 @@ Provide a CFG for the language.
 \item $w$ is the remaining input
 \item $\gamma$ is the contents the stack
 \end{itemize}
-\item Using IDs to represent a {\blue computation step by a PDA}: suppose $(p, \alpha)  \in \delta(q, a, X)$, i.e., \includegraphics[scale=.5]{figures/pdatrans.eps} then for all strings $w$, \[(q, aw, X\beta)\vdash (p, w, \alpha \beta)\]
+\item Using IDs to represent a {\blue computation step by a PDA}: suppose  \includegraphics[scale=.5]{figures/pdatrans.eps}, then for all strings $w$, \[(q, aw, X\beta)\vdash (p, w, \alpha \beta)\]
 
 %\[\mbox{Suppose }(p, \alpha)  \in \delta(q, a, X)\mbox{, then for } (q, aw, X\beta)\vdash (p, w, \alpha \beta)\] 
-\item \cvd is the  closure of $\vdash$, meaning ``zero or more computation steps (moves) of the PDA''.
+%\item \cvd is the  closure of $\vdash$, meaning ``zero or more computation steps (moves) of the PDA''.
 
 \end{itemize}
 \end{slide}
@@ -345,10 +345,10 @@ Therefore, two lemmas:
 \item We will design $P$ to simulate leftmost derivations of strings according to $G$.
 \item The stack will contain the strings of the derivations.
 \end{itemize}
-The derivation of a string, according to a given grammar, gives us a hint on the operation of the PDA.
+The derivation of the string $aaabbb$ according to the grammar below gives us a hint on the operation of the PDA.
 \[
 \begin{array}{l}
-A\ra aAb \vb \e\\
+A\ra aAb \vb \e\\\ \\
 A\dra aAb\dra aaAbb \dra aaaAbbb \dra aaabbb
 \end{array}
 \]
@@ -370,7 +370,7 @@ This is how a PDA would accept a string based on the grammar rules:
 \begin{enumerate}
 \item[a)] If the top of the stack is a variable $A$, nondeterministically select a rule $A \ra \gamma$ and substitute $A$ on the stack by $\gamma$.
 \item[b)] If the top of the stack is a terminal symbol $a$, read the next symbol from the input and compare it to $a$. If they match, pop the stack, repeat (b). If they don't match, reject this branch of the nondeterminism.
-\item[c)] If the top of the stack is the start symbol, pop it without reading a symbol from input.
+\item[c)] If the top of the stack is $Z_0$, pop it without reading a symbol from input.
 %\item[c)] If the top of the stack is P's start symbol, enter the accept state. Doing so accepts the input if it has all been read.
 \end{enumerate}
 \end{itemize}
