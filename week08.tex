@@ -376,10 +376,25 @@ This is how a PDA would accept a string based on the grammar rules:
 \end{itemize}
 \end{slide}
 
-\begin{slide}{Example: $A\ra aAb | \epsilon$}
+\begin{slide}{Obtaining a PDA from a CFG}
+\begin{enumerate}
+\item For each variable $A$ in grammar $G$,
+\[
+\delta(q, \epsilon, A)=\{(q, \beta)\;|\;a\rightarrow \beta\mbox{ is a production of $G$}\}
+\]
+\item For each terminal $a$, $\delta(q, a, a)=\{(q, \epsilon)\}$.
+\end{enumerate}
+\begin{minipage}{6cm}
+Example: 
+\[
+A\ra aAb | \epsilon
+\]
+\end{minipage}
+\begin{minipage}{5cm}
 \begin{center}
-\includegraphics[scale=.6]{figures/cfg-PDA.eps}
+\includegraphics[scale=.5]{figures/cfg-PDA.eps}
 \end{center}
+\end{minipage}
 \end{slide}
 
 \begin{slide}{Proof idea of L2}
