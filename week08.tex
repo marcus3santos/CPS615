@@ -363,14 +363,13 @@ A\dra aAb\dra aaAbb \dra aaaAbbb \dra aaabbb
 \end{comment}
 
 \begin{slide}{Proof idea of L1 (cnt.)}
-This is how a PDA would accept a string based on the grammar rules:
+This is how a PDA would accept a string (by empty stack) based on the grammar rules:
 \begin{itemize}
 \item Place the start variable on the stack.
-\item Repeat the following steps forever:
+\item Repeat the following steps:
 \begin{enumerate}
 \item[a)] If the top of the stack is a variable $A$, nondeterministically select a rule $A \ra \gamma$ and substitute $A$ on the stack by $\gamma$.
-\item[b)] If the top of the stack is a terminal symbol $a$, read the next symbol from the input and compare it to $a$. If they match, pop the stack, repeat (b). If they don't match, reject this branch of the nondeterminism.
-\item[c)] If the top of the stack is $Z_0$, pop it without reading a symbol from input.
+\item[b)] If the top of the stack is a terminal symbol $a$, read the next symbol from the input and compare it to $a$. If they don't match, reject this branch of the nondeterminism.
 %\item[c)] If the top of the stack is P's start symbol, enter the accept state. Doing so accepts the input if it has all been read.
 \end{enumerate}
 \end{itemize}
@@ -395,185 +394,9 @@ A\ra aAb | \epsilon
 \includegraphics[scale=.6]{figures/cfg-PDA.eps}
 \end{center}
 \end{minipage}
+Use IDs to show that the PDA accepts $aabb$ by empty stack.
 \end{slide}
 
-\begin{slide}{Proof idea of L2}
-
-\begin{itemize}
-\item Our task: given a PDA $P$,  design a CFG that generates the strings that $P$ accepts.
-\item Fundamental event in a PDA's history: the popping of a symbol from the stack while consuming input. 
-\item We design a grammar that will have variables named {\blue\bf $A_{pXq}$} that generate all strings $w$ such that $(p, w, X\alpha) \cvd (q, \e, \alpha), \forall p, q, X$.
-\item But to facilitate this task, we must make sure $P$  has the following features:
-\begin{itemize}
-\item It accepts by empty stack.
-\item Each transition either pushes a symbol onto the stack or pops one off the stack, but not both at the same time.
-\end{itemize}
-\end{itemize}
-\end{slide}
-
-%\begin{slide}{On how $P$ computes $x$}
-%First and last moves of $P$ computing $x$:
-%\item (stack is empty) First move is a {\em push}
-%\item Last move is a {\em pop} (stack becomes empty)
-%\end{itemize}
-%Therefore, considering that the stack is empty at the beginning of $P$'s computation of $x$, there are two possibilities:
-%\begin{itemize}
-%\item stack is empty {\em only at the end} of the computation of $x$
-%\[
-%A_{pq}\ra a A_{rs} b
-%\]
-%\item  stack is empty {\em before the end} of $P$'s computation of $x$
-%\[
-%A_{pq} \ra A_{pr}A_{rq}
-%\]
-%\end{itemize}
-%\end{slide}
-
-\begin{slide}{Describing $G$'s rules.}
-Given $P=(Q, \Sigma, \Gamma, \delta, q_0, Z_0)$, let's construct $G=(V, \Sigma, R, S)$:
-\begin{enumerate}
-\item $V$ consists of the start symbol $S$ and all symbols $A_{pXq}$, where  $p,q\in Q$  and $X\in\Gamma$.
-\item The production rules in $R$ are:
-\begin{enumerate}
-\item For all states $p$, $G$ has the production $S\ra A_{q_0Z_0p}$. Therefore, these productions say: $S$ will generate all strings $w$ that cause $P$ to empty its stack.
-\item Let $\delta(q, a, X)=\{(r, Y_1Y_2\cdots Y_k),\cdots\}$, where $a$ is either a symbol of $\Sigma$ or \e, and $k\geq 0$.
-\begin{itemize}
-\item  if $k= 0$, i.e.,  $\delta(q,a,X)=\{(r,\e),\cdots\}$, then $A_{qXr}\ra \epsilon$.
-\item if $k>0$, then for all lists of states $r_1r_2\cdots r_k$, $G$ has the production $A_{qX\underline{r_k}}\ra a \underbrace{A_{rY_1\underline{r_1}}}_{\mbox{pops $Y_1$}}\underbrace{A_{\underline{r_1}Y_2\underline{r_2}}}_{\mbox{pops $Y_2$}}\cdots \underbrace{A_{\underline{r_{k-1}}Y_k\underline{r_k}}}_{\mbox{pops $Y_k$}}$
-\end{itemize}
-\end{enumerate}
-\end{enumerate}
-\end{slide}
-
-%\begin{slide}{Proving that $G$ does generate $x$}
-%We need to prove that $A_{qXp}$ generates $w$ {\bf iff} $(q, w, X)\cvd (p,\e, \e)$\\\ \\
-%{\bf Claim 1:} If $A_{qXp}$ generates $w$, then $(q, w, X)\cvd (p,\e, \e)$\\\ \\
-%Proof by induction on the number of steps in the derivation of $w$ from $A_{qXp}$
-%\begin{itemize}
-%\item {\bf Basis:} One step. $G$ has to include the rule $A_{qXp}\ra w$. And this production does existwhich makes $P $p$ move to $q$, pop $X$ and accept $w$ on empty stack. Since that is $G$ includes $A_{pp}\ra \e$, clearly the input \e\ takes $P$ from $p$ with empty stack to $q$ with empty   stack.\qed
-%\end{itemize}
-%\end{slide}
-
-%\begin{slide}{Proof (cont.)}
-%Proving: If $A_{pq}$ generates $x$, then $x$ can bring $P$ from $p$ with empty stack  to $q$ with empty stack.
-
-% {\bf induction:} Assume true for derivations with $k$ derivations, prove true to $k+1$.
-
-%Suppose $A_{pq}\overset{*}{\Rightarrow} x$ with $k+1$ derivations. The first step an either be $A_{pq} \dra aA_{rs}b$ or $A_{pq} \dra A_{pr}A_{rq}$
-%\begin{itemize}
-%\item $A_{pq} \dra aA_{rs}b$: consider $x=ayb$. Notice that $A_{rs}\overset{*}{\dra} y$ in $k$ steps and $G$ includes $A_{pq}\ra aA_{rs}b$. Also  $\delta(p, a, \e)$ contains $(r,t)$, and $\delta(s, b, t)$ contains $(q,\e)$. Therefore, by IH and inspection of of $P$, it is clear that $x$ can bring $P$ from $p$ with empty stack to $q$ with empty stack. \qed 
-%\item $A_{pq} \dra A_{pr}A_{rq}$: consider $x=yz$. Notice that $A_{pr}\overset{*}{\dra}y$ and $A_{rq}\overset{*}{\dra}z$ has at most $k$ steps. Therefore, proven by IH and inspection of $P$. \qed
-%\end{itemize}
-%\end{slide}
-
-
-%\begin{slide}{Proving the other claim}
-%{\bf Claim 2:} If $x$ can bring $p$ with empty stack to $q$ with empty stack, $A_{pq}$ generates $x$.
-%\begin{itemize}
-%\item Proof by induction on the number of steps in the computation of $P$.
-%\end{itemize}
-%The above proof shows that PDAs recognize the class of context-free languages.
-
-% It also allows us to establish a relationship between regular languages and context free languages
-
-% Because every regular language  (RL) is recognized by a FA and every FA is also a PDA, we now know that every RL is also a CFL.
-
-%\end{slide}
-
-\begin{slide}{Example}
-Obtain a CFG for the following PDA:
-\begin{center}
-\includegraphics[scale=.6]{figures/pda6.eps}
-\end{center}
-\end{slide}
-
-\begin{slide}{Deterministic PDA}
-\begin{itemize}
-\item Recall that DFAs and NFAs are equivalent in language recognition power.
-\item The same does not happen with PDAs.
-\item NPDAs are more powerful then DPDAs.
-\item DPDAs accept a class of languages that is between RLs and CFLs.
-\item Let's  start by defining what is a DPDA. Then show that DPDA languages include all RLs.
-\end{itemize}
-\begin{center}
-\includegraphics[scale=.4]{figures/pda9.eps}
-\end{center}
-\end{slide}
-
-\begin{slide}{Deterministic PDA (DPDA)}
-A PDA \pda{P} is deterministic {\blue iff}:
-\begin{itemize}
-\item $\delta (q,a,X)$ is always empty or a singleton.
-\item If $\delta(q, a, X)$ is nonempty, then $\delta(q, \e, X)$ must
-be empty. 
-\end{itemize}
-But before analyzing a DPDA, let's see the source of nondeterminism in the PDA for $\{ww^R: w\in \{0,1\}^*\}$
-\begin{center}
-\includegraphics[scale=.35]{figures/pda2.eps}
-\end{center}
-\end{slide}
-
-\begin{slide}{Example of a DPDA}
-Let us define the following language
-\(
-L_{wcwr} = \{wcw^R : w \in \{0, 1\}^*\}
-\)
-
-Then $L_{wcwr}$ is recognized by the following DPDA
-\begin{center}
-\includegraphics[scale=.3]{figures/dpda1.eps}
-\end{center}
-Unlike in the previous example, all move choices for this PDA are {\blue deterministic}.
-\quiz{pda.1}
-\end{slide}
-
-\begin{comment}
-\begin{slide}{RLs and deterministic PDA}%$L(DPDA)$: the language of DPDA}
-L(DPDA) includes all RLs.
-\begin{description}
-\item[Theorem:] If $R$ is regular, then $R = L(P )$ for some DPDA $P$.
-\item[Proof:] Since R is regular there is a DFA $A$ such that
-$R = L(A)$. Let 
-\[
-A = ({\blue Q},{\blue \Sigma},\delta_A,{\blue q_0},{\blue F})
-\]
- We define the DPDA
- \[
-P = ({\blue Q},{\blue \Sigma},\{Z_0\},\delta_P,{\blue q_0},Z_0,{\blue F}),
-\]
-where $\delta_P (q, a, Z_0) = \{(\delta_A(q, a), Z_0)\}$,  for all $p,q\in Q$, and $a\in\Sigma$.
-
-With a simple induction on $|w|$ one can show
-\[(q ,w,Z )\cavd{P }(p,\e,Z )\mbox{\bf\blue\ iff\ }\hat{\delta_A}(q ,w)=p
-\]
-\end{description}
-\end{slide}
-
-\begin{slide}{$L(DPDA)$: the language of DPDA (cnt.)}
-\begin{itemize}
-\item We have seen that $RL\subseteq  L(DPDA)$
-\item Also, it is easy to see that  $L_{wcw^R}\in L(DPDA)-RL$. Hint: we use the PL to show that $L_{wcw^R}$ is not regular.
-\item There are CFL that are not in L(DPDA), e.g., $L_{ww^R}$.
-\item The proof that $L_{ww^R} \not\in L(DPDA)$ is complex, but its intuition is transparent.
-\begin{itemize}
-\item Suppose $P$ is a DPDA that accepts $L_{ww^R}$ and $w=0^n110^n0^n110^n$.
-\item To recognize $w$, $P$ would have to use the stack to count the 0's, emptying its stack to recognize the second sequence of 0's.
-\item if  it sees next an identical string, it must accept.
-\item However, since its stack is empty, it cannot remember what $n$ was.
-\end{itemize}
-\end{itemize}
-\end{slide}
-\end{comment}
-
-\begin{slide}{Exercise}
-Provide a DPDA for the following languages:
-\[
-L=\{0^n1^m: n\leq m\}
-\]
-\[
-L=\{0^n1^m:n\geq m\}
-\]
-\end{slide}
 
 \end{document}
 
