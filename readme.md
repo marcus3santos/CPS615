@@ -1,3 +1,2 @@
-# CPS615 - Lecture Notes
+# CPS615 
 
-week 06 is Study Week, hence no lectures.
